@@ -1,114 +1,46 @@
-:root {
-    --color-celeste: #7bcae1;
-    --color-rosa:    #f8a19a;
-    --color-amarillo: #fae495;
-    --color-amarillo-suave: #fffdf0; /* Fondo pastel para que no sature */
-    --color-verde:   #d1ff96;
-    --color-texto:    #4a4a4a;
-    --font-main: 'Fredoka', sans-serif;
-}
-
-* { margin: 0; padding: 0; box-sizing: border-box; }
-
-body {
-    font-family: var(--font-main);
-    color: var(--color-texto);
-    background-color: #ffffff;
-    scroll-behavior: smooth;
-}
-
-header { height: 20px; } /* Solo un margen */
-
-/* === HERO: EL LOGO MÁS GRANDE === */
+/* === HERO: LOGO PROPORCIONAL Y CENTRADO === */
 .hero {
     background-color: var(--color-amarillo-suave);
-    padding: 4rem 1rem;
+    padding: 3rem 1rem 5rem 1rem; /* Más aire arriba y abajo */
     text-align: center;
     border-bottom: 5px solid var(--color-amarillo);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.hero-logo {
+    width: 100%;
+    max-width: 450px; /* AQUÍ CONTROLAMOS EL TAMAÑO: No va a crecer más que esto */
+    margin: 0 auto 2rem auto;
 }
 
 .hero-logo img {
-    width: 320px; /* Tamaño mucho más visible */
+    width: 100%; /* Se adapta al contenedor de 450px */
     height: auto;
-    margin-bottom: 25px;
-    filter: drop-shadow(0 4px 10px rgba(0,0,0,0.1));
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.05));
 }
 
 .hero h1 { 
-    font-size: 3rem; 
-    margin-bottom: 15px; 
+    font-size: 2.5rem; /* Un poco más chico para que no compita con el logo */
     color: #333;
+    margin-bottom: 1rem;
+    line-height: 1.2;
 }
 
-/* === BOTONES CON MEJOR CONTRASTE === */
-.btn {
-    padding: 15px 35px;
-    text-decoration: none;
-    border-radius: 50px;
-    font-weight: 700;
-    display: inline-block;
-    margin: 10px;
-    transition: 0.3s ease;
+.hero p {
+    max-width: 600px;
+    margin: 0 auto 2.5rem auto;
+    font-size: 1.1rem;
+    color: #555;
 }
 
-.btn-rosa { background: var(--color-rosa); color: white; }
-.btn-verde { background: var(--color-verde); color: #445522; } /* Texto oscuro para legibilidad */
-
-.btn:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
-
-/* === CARDS === */
-.grid-actividades {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 25px;
-    padding: 2rem 0;
+/* Responsivo para celulares */
+@media (max-width: 600px) {
+    .hero-logo {
+        max-width: 280px; /* En celular se achica un poco más */
+    }
+    .hero h1 {
+        font-size: 2rem;
+    }
 }
-
-.card {
-    padding: 2.5rem;
-    border-radius: 30px;
-    text-align: center;
-    border: 3px solid transparent;
-}
-
-.card:nth-child(1) { background: #f0faff; border-color: var(--color-celeste); }
-.card:nth-child(2) { background: #fff5f4; border-color: var(--color-rosa); }
-.card:nth-child(3) { background: #f9fff0; border-color: var(--color-verde); }
-
-/* === CONTACTO Y WHATSAPP === */
-.contact-cta {
-    background: var(--color-celeste);
-    color: white;
-    padding: 4rem 2rem;
-    border-radius: 40px;
-    text-align: center;
-}
-
-.cta-btn-white {
-    background: white;
-    padding: 15px 25px;
-    border-radius: 20px;
-    display: flex;
-    align-items: center;
-    text-decoration: none;
-    color: var(--color-texto);
-    margin: 10px;
-}
-
-.wpp-float {
-    position: fixed;
-    bottom: 25px;
-    right: 25px;
-    background: #25d366;
-    color: white;
-    padding: 15px 25px;
-    border-radius: 50px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    text-decoration: none;
-    font-weight: 700;
-    z-index: 1000;
-}
-
-footer { padding: 3rem; text-align: center; color: #ccc; }
