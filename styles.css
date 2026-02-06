@@ -1,0 +1,176 @@
+:root {
+    --color-celeste: #7bcae1;
+    --color-rosa:    #f8a19a;
+    --color-amarillo: #fae495;
+    --color-verde:   #d1ff96;
+    --color-texto:    #4a4a4a;
+    --color-blanco:   #ffffff;
+    --font-main: 'Fredoka', sans-serif;
+}
+
+/* === BASE === */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    font-family: var(--font-main);
+    color: var(--color-texto);
+    line-height: 1.6;
+    background-color: #fff;
+    scroll-behavior: smooth;
+}
+
+h1, h2, h3 { font-weight: 700; }
+
+/* === HEADER === */
+header {
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    background: white;
+    z-index: 1000;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+
+.logo-box img { height: 75px; }
+
+/* === HERO === */
+.hero {
+    background-color: var(--color-amarillo);
+    padding: 4rem 1rem;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.hero h1 { font-size: 2.8rem; color: #444; }
+.hero p { font-size: 1.2rem; max-width: 600px; }
+
+/* === BOTONES === */
+.btn {
+    padding: 14px 35px;
+    text-decoration: none;
+    border-radius: 50px;
+    font-weight: 600;
+    transition: 0.3s;
+    display: inline-block;
+    margin: 10px;
+}
+.btn-celeste { background: var(--color-celeste); color: white; }
+.btn-rosa { background: var(--color-rosa); color: white; }
+.btn-verde { background: var(--color-verde); color: var(--color-texto); }
+
+.btn:hover { 
+    transform: scale(1.05); 
+    filter: brightness(1.02); 
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1); 
+}
+
+/* === SECCIONES === */
+section { padding: 4rem 1rem; max-width: 1200px; margin: 0 auto; }
+
+.section-title { text-align: center; margin-bottom: 3rem; }
+.section-title h2 { 
+    font-size: 2rem; 
+    position: relative;
+    display: inline-block;
+}
+.section-title h2::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: 5px;
+    width: 100%;
+    height: 12px;
+    background: var(--color-verde);
+    z-index: -1;
+    opacity: 0.6;
+}
+
+/* === GRID CARDS === */
+.grid-actividades {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+}
+
+.card {
+    padding: 2.5rem 2rem;
+    border-radius: 30px;
+    text-align: center;
+    transition: 0.3s;
+    border: 3px solid transparent;
+}
+.card:nth-child(1) { background: #f0faff; border-color: var(--color-celeste); }
+.card:nth-child(2) { background: #fff5f4; border-color: var(--color-rosa); }
+.card:nth-child(3) { background: #fafff0; border-color: var(--color-verde); }
+
+.card i { font-size: 2.5rem; margin-bottom: 1.5rem; }
+
+/* === CONTACTO === */
+.contact-cta {
+    background: var(--color-celeste);
+    color: white;
+    text-align: center;
+    border-radius: 40px;
+    margin: 2rem auto;
+    padding: 4rem 2rem;
+}
+
+.cta-buttons-grid {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    margin-top: 2.5rem;
+}
+
+.cta-btn-white {
+    display: flex;
+    align-items: center;
+    background: white;
+    padding: 15px 25px;
+    border-radius: 20px;
+    text-decoration: none;
+    color: var(--color-texto);
+    min-width: 280px;
+    transition: 0.3s;
+}
+
+.cta-btn-white i { font-size: 1.8rem; margin-right: 15px; color: var(--color-rosa); }
+
+.cta-text-info { display: flex; flex-direction: column; text-align: left; }
+.cta-tag { font-size: 0.75rem; color: #999; font-weight: 500; }
+.cta-main { font-weight: 700; }
+
+.cta-btn-white:hover { transform: translateY(-5px); box-shadow: 0 8px 20px rgba(0,0,0,0.15); }
+
+/* === FOOTER === */
+footer { text-align: center; padding: 3rem; color: #bbb; font-size: 0.9rem; }
+
+/* === WHATSAPP === */
+.wpp-float {
+    position: fixed;
+    bottom: 25px;
+    right: 25px;
+    background-color: #25d366;
+    color: #FFF;
+    border-radius: 50px;
+    padding: 15px 28px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+    z-index: 5000;
+    font-weight: 700;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+}
+
+@media (max-width: 600px) {
+    .hero h1 { font-size: 2rem; }
+    .wpp-text { display: none; }
+}
