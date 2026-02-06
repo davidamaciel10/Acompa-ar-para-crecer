@@ -3,7 +3,7 @@
     --color-celeste: #7bcae1;
     --color-rosa:    #f8a19a;
     --color-amarillo: #fae495;
-    --color-amarillo-suave: #fffdf0; /* Fondo sutil para el Hero */
+    --color-amarillo-suave: #fffdf0;
     --color-verde:   #d1ff96;
     --color-texto:    #4a4a4a;
     --color-blanco:   #ffffff;
@@ -11,35 +11,23 @@
 }
 
 /* === RESET Y BASE === */
-* { 
-    margin: 0; 
-    padding: 0; 
-    box-sizing: border-box; 
-}
+* { margin: 0; padding: 0; box-sizing: border-box; }
 
 body {
     font-family: var(--font-main);
     color: var(--color-texto);
-    line-height: 1.6;
+    line-height: 1.5;
     background-color: var(--color-blanco);
+    overflow-x: hidden; /* Evita el scroll horizontal */
     scroll-behavior: smooth;
 }
 
-h1, h2, h3 { 
-    font-weight: 700; 
-    color: #333;
-}
-
-/* === HEADER (Espaciador) === */
-header {
-    height: 20px;
-    background: transparent;
-}
+img { max-width: 100%; height: auto; display: block; }
 
 /* === HERO: LOGO Y TÍTULO === */
 .hero {
     background-color: var(--color-amarillo-suave);
-    padding: 4rem 1rem 5rem 1rem;
+    padding: 3rem 1.5rem;
     text-align: center;
     border-bottom: 5px solid var(--color-amarillo);
     display: flex;
@@ -49,189 +37,110 @@ header {
 
 .hero-logo {
     width: 100%;
-    max-width: 420px; /* Tamaño controlado para que no sea gigante */
-    margin-bottom: 2rem;
-}
-
-.hero-logo img {
-    width: 100%;
-    height: auto;
-    filter: drop-shadow(0 4px 10px rgba(0,0,0,0.08));
+    max-width: 350px; /* Controla que no sea gigante en PC */
+    margin-bottom: 1.5rem;
 }
 
 .hero h1 { 
-    font-size: 2.8rem; 
+    font-size: 2.5rem; 
     margin-bottom: 1rem;
     line-height: 1.1;
+    color: #333;
 }
 
 .hero p {
-    font-size: 1.2rem;
-    max-width: 650px;
-    margin: 0 auto 2.5rem auto;
+    font-size: 1.1rem;
+    max-width: 600px;
+    margin-bottom: 2rem;
     color: #555;
 }
 
 /* === BOTONES === */
 .btn {
-    padding: 15px 35px;
+    padding: 12px 28px;
     text-decoration: none;
     border-radius: 50px;
     font-weight: 700;
     display: inline-block;
-    margin: 10px;
-    transition: all 0.3s ease;
+    margin: 8px;
+    transition: 0.3s;
     border: none;
-    cursor: pointer;
+    font-size: 0.9rem;
 }
 
-.btn-rosa { 
-    background: var(--color-rosa); 
-    color: white; 
-    box-shadow: 0 4px 0 #e08a84;
-}
-
-.btn-verde { 
-    background: var(--color-verde); 
-    color: #445522; /* Texto oscuro para lectura sobre verde claro */
-    box-shadow: 0 4px 0 #b8e67a;
-}
-
-.btn:hover { 
-    transform: translateY(-3px); 
-    filter: brightness(1.05);
-    box-shadow: 0 6px 15px rgba(0,0,0,0.1); 
-}
-
-/* === SECCIONES Y CONTENIDO === */
-section { 
-    padding: 5rem 1rem; 
-    max-width: 1100px; 
-    margin: 0 auto; 
-}
-
-.section-title { 
-    text-align: center; 
-    margin-bottom: 4rem; 
-}
-
-.section-title h2 { 
-    font-size: 2.2rem; 
-    position: relative;
-    display: inline-block;
-}
-
-.section-title h2::after {
-    content: "";
-    position: absolute;
-    left: 0;
-    bottom: 4px;
-    width: 100%;
-    height: 12px;
-    background: var(--color-amarillo);
-    z-index: -1;
-    opacity: 0.5;
-}
+.btn-rosa { background: var(--color-rosa); color: white; box-shadow: 0 4px 0 #e08a84; }
+.btn-verde { background: var(--color-verde); color: #445522; box-shadow: 0 4px 0 #b8e67a; }
+.btn:hover { transform: translateY(-2px); filter: brightness(1.05); }
 
 /* === GRID DE CARDS === */
+section { padding: 4rem 1.5rem; max-width: 1100px; margin: 0 auto; }
+
 .grid-actividades {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 30px;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
 }
 
 .card {
-    padding: 3rem 2rem;
-    border-radius: 35px;
+    padding: 2rem;
+    border-radius: 30px;
     text-align: center;
     border: 3px solid transparent;
-    transition: transform 0.3s ease;
-}
-
-.card:hover {
-    transform: scale(1.02);
 }
 
 .card:nth-child(1) { background: #f0faff; border-color: var(--color-celeste); }
 .card:nth-child(2) { background: #fff5f4; border-color: var(--color-rosa); }
 .card:nth-child(3) { background: #f9fff0; border-color: var(--color-verde); }
 
-.card i { 
-    font-size: 3rem; 
-    margin-bottom: 1.5rem; 
-    display: block;
-}
-
-/* === CONTACTO (Estilo CTA) === */
+/* === CONTACTO === */
 .contact-cta {
     background: var(--color-celeste);
     color: white;
-    padding: 4rem 2rem;
-    border-radius: 50px;
+    padding: 3rem 1.5rem;
+    border-radius: 40px;
     text-align: center;
-}
-
-.contact-cta h2 { color: white; margin-bottom: 1rem; }
-
-.cta-buttons-grid {
-    display: flex;
-    justify-content: center;
-    gap: 20px;
-    flex-wrap: wrap;
-    margin-top: 3rem;
 }
 
 .cta-btn-white {
     background: white;
-    padding: 15px 30px;
-    border-radius: 20px;
+    padding: 12px 20px;
+    border-radius: 15px;
     display: flex;
     align-items: center;
     text-decoration: none;
     color: var(--color-texto);
-    min-width: 280px;
-    transition: 0.3s;
+    margin: 10px auto;
+    max-width: 300px;
 }
 
-.cta-btn-white i { 
-    font-size: 2rem; 
-    margin-right: 15px; 
-    color: var(--color-rosa); 
-}
-
-.cta-text-info { display: flex; flex-direction: column; text-align: left; }
-.cta-tag { font-size: 0.7rem; color: #999; }
-.cta-main { font-weight: 700; font-size: 1.1rem; }
+.cta-btn-white i { font-size: 1.8rem; margin-right: 12px; color: var(--color-rosa); }
 
 /* === WHATSAPP FLOTANTE === */
 .wpp-float {
     position: fixed;
-    bottom: 30px;
-    right: 30px;
+    bottom: 20px;
+    right: 20px;
     background: #25d366;
     color: white;
-    padding: 15px 25px;
+    padding: 12px 20px;
     border-radius: 50px;
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 8px;
     text-decoration: none;
     font-weight: 700;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-    z-index: 1000;
-}
-
-/* === FOOTER === */
-footer {
-    text-align: center;
-    padding: 4rem 1rem;
-    color: #bbb;
     font-size: 0.9rem;
+    z-index: 1000;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
 }
 
-/* === RESPONSIVO === */
-@media (max-width: 768px) {
-    .hero-logo { max-width: 300px; }
-    .hero h1 { font-size: 2.2rem; }
-    .cta-btn-white { width: 100%; }
+/* === RESPONSIVO (El arreglo mágico) === */
+@media (max-width: 600px) {
+    .hero-logo { max-width: 220px; } /* Logo mucho más chico en móvil */
+    .hero h1 { font-size: 1.8rem; }
+    .hero p { font-size: 1rem; }
+    .btn { width: 90%; margin: 5px auto; } /* Botones uno sobre otro en móvil */
+    .grid-actividades { grid-template-columns: 1fr; }
+    .wpp-text { display: none; } /* Solo icono de WP en móvil para no tapar */
+    .wpp-float { padding: 15px; border-radius: 50%; }
 }
