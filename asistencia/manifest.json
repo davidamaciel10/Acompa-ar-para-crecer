@@ -1,0 +1,9 @@
+﻿{
+  "name": "Asistencia",
+  "short_name": "Asistencia",
+  "start_url": "/Acompa-ar-para-crecer/asistencia/",
+  "display": "standalone",
+  "background_color": "#0d1117",
+  "theme_color": "#0d1117",
+  "orientation": "portrait"
+}

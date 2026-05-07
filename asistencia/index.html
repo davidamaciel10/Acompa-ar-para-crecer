@@ -1,0 +1,311 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Asistencia">
+<meta name="theme-color" content="#0d1117">
+<link rel="manifest" href="manifest.json">
+<title>Asistencia</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0d1117;--bg2:#161b27;--bg3:#1e2535;--border:rgba(255,255,255,0.07);--bord2:rgba(255,255,255,0.14);--text:#eef0f5;--muted:#6e7a8e;--green:#00d68f;--gdim:rgba(0,214,143,0.12);--red:#ff5c5c;--amber:#ffb547;--adim:rgba(255,181,71,0.12);--blue:#4d9fff;--bdim:rgba(77,159,255,0.12);--mono:"DM Mono",monospace;--sans:"DM Sans",sans-serif;--sab:env(safe-area-inset-bottom,0px);--sat:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--sans);overflow:hidden}
+.shell{display:flex;flex-direction:column;height:100vh;height:100dvh}
+.topbar{padding:calc(var(--sat) + 14px) 18px 10px;flex-shrink:0;display:flex;align-items:flex-end;justify-content:space-between;border-bottom:1px solid var(--border)}
+.topbar-left h1{font-size:18px;font-weight:600;letter-spacing:-.3px}
+.topbar-left .sub{font-size:11px;color:var(--muted);font-family:var(--mono);margin-top:2px}
+.counter{font-size:26px;font-weight:300;font-family:var(--mono);color:var(--green);letter-spacing:-1px;line-height:1}
+.counter-sub{font-size:10px;color:var(--muted);font-family:var(--mono);margin-top:2px}
+.search-wrap{padding:12px 14px 0;flex-shrink:0}
+.search-box{position:relative;display:flex;align-items:center}
+.search-icon{position:absolute;left:13px;color:var(--muted);pointer-events:none;width:17px;height:17px}
+#searchInput{width:100%;background:var(--bg2);border:1px solid var(--bord2);border-radius:12px;color:var(--text);font-family:var(--sans);font-size:16px;padding:11px 40px;outline:none;-webkit-appearance:none;transition:border-color .15s}
+#searchInput:focus{border-color:var(--green)}
+#searchInput::placeholder{color:var(--muted)}
+.clear-btn{position:absolute;right:10px;background:none;border:none;color:var(--muted);cursor:pointer;padding:6px;display:none;font-size:16px;line-height:1}
+.clear-btn.visible{display:block}
+.tabs{display:flex;padding:10px 14px 0;gap:6px;flex-shrink:0}
+.tab{flex:1;padding:8px 6px;border-radius:10px;border:1px solid var(--border);background:var(--bg2);color:var(--muted);font-size:12px;font-weight:500;font-family:var(--sans);cursor:pointer;transition:all .15s;text-align:center}
+.tab.active{background:var(--gdim);border-color:var(--green);color:var(--green)}
+.date-pills{display:flex;gap:6px;padding:10px 14px 0;overflow-x:auto;flex-shrink:0;scrollbar-width:none}
+.date-pills::-webkit-scrollbar{display:none}
+.pill{padding:5px 12px;border-radius:20px;border:1px solid var(--border);background:var(--bg2);color:var(--muted);font-size:11px;font-family:var(--mono);cursor:pointer;white-space:nowrap;transition:all .15s;flex-shrink:0}
+.pill.active{background:var(--gdim);border-color:var(--green);color:var(--green)}
+.pill.today{border-color:var(--bord2)}
+.content{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:8px 14px calc(24px + var(--sab))}
+.section-label{font-size:10px;color:var(--muted);font-family:var(--mono);letter-spacing:.08em;text-transform:uppercase;padding:10px 0 6px}
+.person-card{display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--bg2);border:1px solid var(--border);border-radius:14px;margin-bottom:7px;cursor:pointer;transition:border-color .15s,background .15s;user-select:none;-webkit-user-select:none}
+.person-card:active{background:var(--bg3)}
+.person-card.present{border-color:var(--green);background:var(--gdim)}
+.person-card.loading{opacity:.6;pointer-events:none}
+.avatar{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:600;flex-shrink:0;font-family:var(--mono)}
+.avatar.vol{background:var(--gdim);color:var(--green)}
+.avatar.alu{background:var(--bdim);color:var(--blue)}
+.avatar.otro{background:var(--adim);color:var(--amber)}
+.person-info{flex:1;min-width:0}
+.person-name{font-size:14px;font-weight:500}
+.person-meta{display:flex;align-items:center;gap:6px;margin-top:3px}
+.badge{font-size:9px;font-family:var(--mono);padding:2px 7px;border-radius:10px;font-weight:500}
+.badge.vol{background:var(--gdim);color:var(--green)}
+.badge.alu{background:var(--bdim);color:var(--blue)}
+.badge.otro{background:var(--adim);color:var(--amber)}
+.person-dni{font-size:11px;color:var(--muted);font-family:var(--mono)}
+.check-btn{width:36px;height:36px;border-radius:10px;border:1.5px solid var(--bord2);background:var(--bg3);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;color:var(--muted)}
+.person-card.present .check-btn{background:var(--green);border-color:var(--green);color:#0d1117}
+.empty{text-align:center;padding:40px 0;color:var(--muted);font-size:13px;line-height:1.7}
+.empty .emoji{font-size:32px;display:block;margin-bottom:8px}
+.spinner{width:20px;height:20px;border:2px solid var(--border);border-top-color:var(--green);border-radius:50%;animation:spin .7s linear infinite;margin:40px auto}
+@keyframes spin{to{transform:rotate(360deg)}}
+.progress-wrap{padding:8px 14px 0;flex-shrink:0}
+.progress-bar{height:3px;background:var(--bg3);border-radius:2px;overflow:hidden}
+.progress-fill{height:100%;background:var(--green);border-radius:2px;transition:width .6s ease}
+.progress-label{font-size:10px;color:var(--muted);font-family:var(--mono);margin-top:4px}
+.toast{position:fixed;bottom:calc(20px + var(--sab));left:50%;transform:translateX(-50%) translateY(8px);background:var(--bg3);border:1px solid var(--bord2);color:var(--text);padding:9px 16px;border-radius:20px;font-size:12px;font-family:var(--mono);opacity:0;transition:all .25s;pointer-events:none;z-index:999;white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:200;display:flex;align-items:flex-end;opacity:0;pointer-events:none;transition:opacity .2s}
+.modal-overlay.open{opacity:1;pointer-events:auto}
+.modal{width:100%;background:var(--bg2);border-radius:20px 20px 0 0;border:1px solid var(--border);padding:24px 20px calc(24px + var(--sab));transform:translateY(100%);transition:transform .25s ease}
+.modal-overlay.open .modal{transform:translateY(0)}
+.modal h2{font-size:16px;font-weight:600;margin-bottom:16px}
+.modal label{font-size:10px;color:var(--muted);font-family:var(--mono);display:block;margin-bottom:5px;letter-spacing:.05em;text-transform:uppercase}
+.modal input{width:100%;background:var(--bg3);border:1px solid var(--bord2);border-radius:10px;color:var(--text);font-family:var(--mono);font-size:13px;padding:10px 12px;outline:none;-webkit-appearance:none;margin-bottom:14px}
+.modal input:focus{border-color:var(--green)}
+.modal-btns{display:flex;gap:8px}
+.btn-save{flex:1;padding:12px;border-radius:11px;border:none;background:var(--green);color:#0d1117;font-size:14px;font-weight:600;cursor:pointer;font-family:var(--sans)}
+.btn-cancel{padding:12px 18px;border-radius:11px;border:1px solid var(--bord2);background:var(--bg3);color:var(--muted);font-size:14px;cursor:pointer;font-family:var(--sans)}
+.gear-btn{background:none;border:none;color:var(--muted);cursor:pointer;padding:4px;margin-left:8px;display:flex;align-items:center}
+</style>
+</head>
+<body>
+<div class="shell">
+  <div class="topbar">
+    <div class="topbar-left">
+      <h1>Asistencia &#10003;</h1>
+      <div class="sub" id="topFecha">&mdash;</div>
+    </div>
+    <div style="display:flex;align-items:flex-end;gap:8px">
+      <div class="topbar-right">
+        <div class="counter" id="counterNum">&mdash;</div>
+        <div class="counter-sub" id="counterSub">presentes hoy</div>
+      </div>
+      <button class="gear-btn" onclick="openSettings()" title="Configuracion">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+      </button>
+    </div>
+  </div>
+  <div class="search-wrap">
+    <div class="search-box">
+      <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input id="searchInput" type="text" placeholder="Buscar por nombre, apellido o DNI..." autocomplete="off" autocorrect="off" spellcheck="false">
+      <button class="clear-btn" id="clearBtn" onclick="clearSearch()">&#10005;</button>
+    </div>
+  </div>
+  <div class="tabs">
+    <button class="tab active" id="tabBuscar" onclick="setTab('buscar')">Buscar</button>
+    <button class="tab" id="tabPresentes" onclick="setTab('presentes')">Presentes hoy</button>
+  </div>
+  <div class="date-pills" id="datePills"></div>
+  <div class="progress-wrap">
+    <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+    <div class="progress-label" id="progressLabel"></div>
+  </div>
+  <div class="content" id="content"><div class="spinner"></div></div>
+</div>
+<div class="toast" id="toast"></div>
+<div class="modal-overlay" id="modalOverlay" onclick="closeSettingsOutside(event)">
+  <div class="modal">
+    <h2>Configuracion</h2>
+    <label>URL del backend</label>
+    <input type="text" id="apiUrlInput" placeholder="https://tu-backend.railway.app">
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeSettings()">Cancelar</button>
+      <button class="btn-save" onclick="saveSettings()">Guardar</button>
+    </div>
+  </div>
+</div>
+<script>
+let API_URL=localStorage.getItem('api_url')||'http://localhost:3000';
+let currentTab='buscar',selectedDate=null,sabados=[];
+let presentesSet=new Set(),totalPersonas=0,searchTimeout=null,lastQuery='';
+
+(async function init(){
+  updateTopFecha();
+  await loadSabados();
+  await loadAsistenciaHoy();
+  renderContent();
+})();
+
+function todayDDMM(){const d=new Date();return pad(d.getDate())+'-'+pad(d.getMonth()+1);}
+function todayDisplay(){const d=new Date();const days=['Domingo','Lunes','Martes','Miercoles','Jueves','Viernes','Sabado'];const months=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];return days[d.getDay()]+' '+d.getDate()+' '+months[d.getMonth()];}
+function pad(n){return String(n).padStart(2,'0');}
+function updateTopFecha(){document.getElementById('topFecha').textContent=todayDisplay();}
+
+async function apiFetch(path,opts){
+  const r=await fetch(API_URL+path,opts);
+  if(!r.ok){const err=await r.json().catch(()=>({error:r.statusText}));throw new Error(err.error||r.statusText);}
+  return r.json();
+}
+
+async function loadSabados(){
+  try{
+    const data=await apiFetch('/sabados');
+    sabados=data.sabados;
+    const today=todayDDMM(),todayFmt=today.replace('-','/');
+    const found=sabados.find(s=>s.ddmm===todayFmt);
+    if(found){selectedDate=today;}
+    else if(sabados.length>0){
+      const now=new Date();
+      const past=sabados.filter(s=>new Date(s.iso)<=now);
+      selectedDate=past.length>0?past[past.length-1].ddmm.replace('/','-'):sabados[0].ddmm.replace('/','-');
+    }
+    renderDatePills();
+  }catch(e){console.error(e);}
+}
+
+async function loadAsistenciaHoy(){
+  if(!selectedDate)return;
+  try{
+    const data=await apiFetch('/asistencia/'+selectedDate);
+    presentesSet=new Set(data.presentes.map(p=>String(p.dni)));
+    totalPersonas=data.total;
+    updateCounter(data.presentes.length,data.total);
+  }catch(e){console.error(e);}
+}
+
+async function toggleAsistencia(persona){
+  const card=document.getElementById('card-'+persona.dni);
+  if(card)card.classList.add('loading');
+  const marcar=!presentesSet.has(String(persona.dni));
+  try{
+    await apiFetch('/asistencia',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({dni:String(persona.dni),fecha:selectedDate,marcar})});
+    if(marcar){presentesSet.add(String(persona.dni));showToast('Asistencia marcada');}
+    else{presentesSet.delete(String(persona.dni));showToast('Asistencia desmarcada');}
+    updateCounter(presentesSet.size,totalPersonas);
+    if(card){
+      card.classList.remove('loading');
+      const ip=presentesSet.has(String(persona.dni));
+      card.classList.toggle('present',ip);
+      const cb=card.querySelector('.check-btn');
+      if(cb)cb.innerHTML=ip?checkIcon():'';
+    }
+    if(currentTab==='presentes')renderContent();
+  }catch(e){showToast('Error: '+e.message,true);if(card)card.classList.remove('loading');}
+}
+
+function renderDatePills(){
+  const c=document.getElementById('datePills');
+  if(!sabados.length){c.innerHTML='';return;}
+  const tf=todayDDMM().replace('-','/');
+  c.innerHTML=sabados.map(s=>{
+    const dk=s.ddmm.replace('/','-');
+    return '<button class="pill'+(dk===selectedDate?' active':'')+(s.ddmm===tf?' today':'')+'" onclick="selectDate(\''+dk+'\')">'+s.ddmm+(s.ddmm===tf?' &bull;':'')+'</button>';
+  }).join('');
+}
+
+async function selectDate(ddmm){
+  selectedDate=ddmm;renderDatePills();
+  document.getElementById('content').innerHTML='<div class="spinner"></div>';
+  await loadAsistenciaHoy();renderContent();
+}
+
+function renderContent(){
+  if(currentTab==='buscar'){if(lastQuery.trim()){}else renderEmpty();}
+  else renderPresentes();
+}
+function renderEmpty(){document.getElementById('content').innerHTML='<div class="empty"><span class="emoji">&#128269;</span>Escribi un nombre, apellido o DNI<br>para buscar una persona</div>';}
+
+async function doSearch(q){
+  lastQuery=q;
+  if(!q.trim()){renderEmpty();return;}
+  document.getElementById('content').innerHTML='<div class="spinner"></div>';
+  try{
+    const personas=await apiFetch('/personas?q='+encodeURIComponent(q.trim()));
+    renderList(personas,document.getElementById('content'),'Resultados');
+  }catch(e){document.getElementById('content').innerHTML='<div class="empty"><span class="emoji">&#9888;</span>'+e.message+'</div>';}
+}
+
+function renderList(personas,container,label){
+  if(!personas.length){container.innerHTML='<div class="empty"><span class="emoji">&#129335;</span>Sin resultados</div>';return;}
+  container.innerHTML='<div class="section-label">'+label+' ('+personas.length+')</div>'+personas.map(p=>cardHTML(p)).join('');
+}
+
+function renderPresentes(){
+  const content=document.getElementById('content');
+  apiFetch('/asistencia/'+selectedDate).then(data=>{
+    if(!data.presentes.length){content.innerHTML='<div class="empty"><span class="emoji">&#128203;</span>Nadie marcado todavia</div>';return;}
+    renderList(data.presentes,content,'Presentes');
+  }).catch(e=>{content.innerHTML='<div class="empty"><span class="emoji">&#9888;</span>'+e.message+'</div>';});
+}
+
+function cardHTML(p){
+  const ip=presentesSet.has(String(p.dni));
+  const tk=tipoClass(p.tipo);
+  const ini=((p.nombre[0]||'')+(p.apellido[0]||'')).toUpperCase();
+  return '<div class="person-card'+(ip?' present':'')+'" id="card-'+p.dni+'" onclick="toggleAsistencia('+JSON.stringify(p).replace(/"/g,'&quot;')+')">'
+    +'<div class="avatar '+tk+'">'+ini+'</div>'
+    +'<div class="person-info">'
+    +'<div class="person-name">'+esc(p.apellido)+', '+esc(p.nombre)+'</div>'
+    +'<div class="person-meta"><span class="badge '+tk+'">'+esc(p.tipo||'Sin tipo')+'</span><span class="person-dni">'+esc(p.dni)+'</span></div>'
+    +'</div>'
+    +'<div class="check-btn">'+(ip?checkIcon():'')+'</div>'
+    +'</div>';
+}
+
+function checkIcon(){return '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>';}
+function tipoClass(t){t=(t||'').toLowerCase();if(t.includes('voluntario'))return 'vol';if(t.includes('alumno'))return 'alu';return 'otro';}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+function updateCounter(p,t){
+  document.getElementById('counterNum').textContent=p;
+  document.getElementById('counterSub').textContent='de '+t+' personas';
+  const pct=t>0?Math.round((p/t)*100):0;
+  document.getElementById('progressFill').style.width=pct+'%';
+  document.getElementById('progressLabel').textContent=t>0?pct+'% de asistencia':'';
+}
+
+function setTab(tab){
+  currentTab=tab;
+  document.getElementById('tabBuscar').classList.toggle('active',tab==='buscar');
+  document.getElementById('tabPresentes').classList.toggle('active',tab==='presentes');
+  if(tab==='buscar'){if(lastQuery.trim())doSearch(lastQuery);else renderEmpty();}
+  else renderPresentes();
+}
+
+document.getElementById('searchInput').addEventListener('input',function(){
+  document.getElementById('clearBtn').classList.toggle('visible',this.value.length>0);
+  clearTimeout(searchTimeout);
+  if(currentTab!=='buscar')setTab('buscar');
+  searchTimeout=setTimeout(()=>doSearch(this.value),280);
+});
+
+function clearSearch(){
+  document.getElementById('searchInput').value='';
+  document.getElementById('clearBtn').classList.remove('visible');
+  lastQuery='';renderEmpty();
+}
+
+let toastTimer;
+function showToast(msg,isError){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.style.borderColor=isError?'var(--red)':'var(--bord2)';
+  t.classList.add('show');clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>t.classList.remove('show'),2800);
+}
+
+function openSettings(){document.getElementById('apiUrlInput').value=API_URL;document.getElementById('modalOverlay').classList.add('open');}
+function closeSettings(){document.getElementById('modalOverlay').classList.remove('open');}
+function closeSettingsOutside(e){if(e.target===document.getElementById('modalOverlay'))closeSettings();}
+function saveSettings(){
+  const url=document.getElementById('apiUrlInput').value.trim().replace(/\/$/,'');
+  if(!url)return;
+  API_URL=url;localStorage.setItem('api_url',url);
+  closeSettings();showToast('URL guardada');
+  loadSabados().then(()=>loadAsistenciaHoy()).then(()=>renderContent());
+}
+</script>
+</body>
+</html>
