@@ -58,11 +58,49 @@ app.get('/sabados', (_req, res) => {
 app.get('/personas', async (req, res) => {
   try {
     const q = (req.query.q||'').toLowerCase().trim();
+    const activity = (req.query.activity||'').toLowerCase().trim();
     const sheets = await getSheets();
     const r = await sheets.spreadsheets.values.get({ spreadsheetId: SPREADSHEET_ID, range: PERSONAS_SHEET+'!A2:E' });
     let personas = (r.data.values||[]).map((row,i) => ({ rowIndex: i+2, nombre: row[0]||'', apellido: row[1]||'', dni: row[2]||'', tipo: row[4]||'' }));
     if (q) personas = personas.filter(p => (p.nombre+' '+p.apellido+' '+p.dni).toLowerCase().includes(q));
-    res.json(personas.slice(0,30));
+    if (activity && activity !== 'todos') {
+      const keyword = activity === 'geotech' ? 'geo' : activity;
+      personas = personas.filter(p => p.tipo.toLowerCase().includes(keyword));
+    }
+    res.json(personas);
+  } catch(e) { res.status(500).json({ error: e.message }); }
+});
+
+app.post('/personas', async (req, res) => {
+  try {
+    const { nombre, apellido, dni, tipo } = req.body;
+    if (!nombre||!apellido||!dni) return res.status(400).json({ error: 'Faltan campos: nombre, apellido, dni' });
+    const sheets = await getSheets();
+    await sheets.spreadsheets.values.append({
+      spreadsheetId: SPREADSHEET_ID,
+      range: PERSONAS_SHEET+'!A:E',
+      valueInputOption: 'RAW',
+      insertDataOption: 'INSERT_ROWS',
+      requestBody: { values: [[nombre, apellido, dni, '', tipo||'']] },
+    });
+    res.json({ ok: true });
+  } catch(e) { res.status(500).json({ error: e.message }); }
+});
+
+app.put('/personas/:rowIndex', async (req, res) => {
+  try {
+    const rowIndex = parseInt(req.params.rowIndex);
+    if (isNaN(rowIndex) || rowIndex < 2) return res.status(400).json({ error: 'rowIndex inválido' });
+    const { nombre, apellido, dni, tipo } = req.body;
+    if (!nombre||!apellido||!dni) return res.status(400).json({ error: 'Faltan campos: nombre, apellido, dni' });
+    const sheets = await getSheets();
+    await sheets.spreadsheets.values.update({
+      spreadsheetId: SPREADSHEET_ID,
+      range: `${PERSONAS_SHEET}!A${rowIndex}:E${rowIndex}`,
+      valueInputOption: 'RAW',
+      requestBody: { values: [[nombre, apellido, dni, '', tipo||'']] },
+    });
+    res.json({ ok: true });
   } catch(e) { res.status(500).json({ error: e.message }); }
 });
 
