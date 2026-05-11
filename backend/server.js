@@ -34,10 +34,15 @@ function getSabados(year, month) {
 function fmtDDMM(date) { return String(date.getDate()).padStart(2,'0')+'/'+String(date.getMonth()+1).padStart(2,'0'); }
 function sheetNameForMonth(y, m) { return MONTH_NAMES[m-1]+' '+y; }
 
-// Cuando no hay DNI real, usamos ~rowIndex como ID sintético
 function syntheticId(rowIndex) { return '~' + rowIndex; }
 function isSynthetic(dni) { return String(dni).startsWith('~'); }
 function rowFromSynthetic(dni) { return parseInt(String(dni).slice(1)); }
+
+// Acepta "YYYY-MM-DD"
+function parseFecha(fecha) {
+  const [yyyy, mm, dd] = fecha.split('-');
+  return { year: parseInt(yyyy), month: parseInt(mm), fechaCol: `${dd}/${mm}` };
+}
 
 async function ensureMonthSheet(sheets, year, month) {
   const name = sheetNameForMonth(year, month);
@@ -46,7 +51,7 @@ async function ensureMonthSheet(sheets, year, month) {
   if (!existing.includes(name)) {
     await sheets.spreadsheets.batchUpdate({ spreadsheetId: SPREADSHEET_ID, requestBody: { requests: [{ addSheet: { properties: { title: name } } }] } });
     const pr = await sheets.spreadsheets.values.get({ spreadsheetId: SPREADSHEET_ID, range: PERSONAS_SHEET+'!A2:E' });
-    const personas = (pr.data.values||[]).map((r, i) => [r[0]||'', r[1]||'', r[2]||syntheticId(i+2), r[4]||'']);
+    const personas = (pr.data.values||[]).map((row, i) => [row[0]||'', row[1]||'', row[2]||syntheticId(i+2), row[4]||'']);
     const sabados = getSabados(year, month).map(fmtDDMM);
     await sheets.spreadsheets.values.update({ spreadsheetId: SPREADSHEET_ID, range: name+'!A1', valueInputOption: 'RAW', requestBody: { values: [['Nombre','Apellido','DNI','Tipo',...sabados],...personas] } });
   }
@@ -54,11 +59,6 @@ async function ensureMonthSheet(sheets, year, month) {
 }
 
 app.get('/', (_req, res) => res.json({ ok: true, service: 'asistencia-api' }));
-
-app.get('/sabados', (_req, res) => {
-  const now = new Date(), y = now.getFullYear(), m = now.getMonth()+1;
-  res.json({ sabados: getSabados(y,m).map(d => ({ ddmm: fmtDDMM(d), iso: d.toISOString().split('T')[0] })), mes: sheetNameForMonth(y,m) });
-});
 
 app.get('/personas', async (req, res) => {
   try {
@@ -70,6 +70,7 @@ app.get('/personas', async (req, res) => {
       nombre: row[0]||'',
       apellido: row[1]||'',
       dni: row[2]||syntheticId(i+2),
+      actividad: row[3]||'',
       tipo: row[4]||'',
     }));
     if (q) personas = personas.filter(p => (p.nombre+' '+p.apellido+' '+p.dni).toLowerCase().includes(q));
@@ -79,7 +80,7 @@ app.get('/personas', async (req, res) => {
 
 app.post('/personas', async (req, res) => {
   try {
-    const { nombre, apellido, dni, tipo } = req.body;
+    const { nombre, apellido, dni, actividad, tipo } = req.body;
     if (!nombre||!apellido) return res.status(400).json({ error: 'Faltan campos: nombre y apellido' });
     const sheets = await getSheets();
     await sheets.spreadsheets.values.append({
@@ -87,7 +88,7 @@ app.post('/personas', async (req, res) => {
       range: PERSONAS_SHEET+'!A:E',
       valueInputOption: 'RAW',
       insertDataOption: 'INSERT_ROWS',
-      requestBody: { values: [[nombre, apellido, dni||'', '', tipo||'']] },
+      requestBody: { values: [[nombre, apellido, dni||'', actividad||'', tipo||'']] },
     });
     res.json({ ok: true });
   } catch(e) { res.status(500).json({ error: e.message }); }
@@ -97,23 +98,39 @@ app.put('/personas/:rowIndex', async (req, res) => {
   try {
     const rowIndex = parseInt(req.params.rowIndex);
     if (isNaN(rowIndex) || rowIndex < 2) return res.status(400).json({ error: 'rowIndex inválido' });
-    const { nombre, apellido, dni, tipo } = req.body;
+    const { nombre, apellido, dni, actividad, tipo } = req.body;
     if (!nombre||!apellido) return res.status(400).json({ error: 'Faltan campos: nombre y apellido' });
     const sheets = await getSheets();
     await sheets.spreadsheets.values.update({
       spreadsheetId: SPREADSHEET_ID,
       range: `${PERSONAS_SHEET}!A${rowIndex}:E${rowIndex}`,
       valueInputOption: 'RAW',
-      requestBody: { values: [[nombre, apellido, dni||'', '', tipo||'']] },
+      requestBody: { values: [[nombre, apellido, dni||'', actividad||'', tipo||'']] },
     });
     res.json({ ok: true });
   } catch(e) { res.status(500).json({ error: e.message }); }
 });
 
+// Crea la columna de una fecha en el sheet del mes si no existe
+app.post('/fecha', async (req, res) => {
+  try {
+    const { fecha } = req.body; // "YYYY-MM-DD"
+    if (!fecha) return res.status(400).json({ error: 'Falta fecha' });
+    const { year, month, fechaCol } = parseFecha(fecha);
+    const sheets = await getSheets();
+    const sheetName = await ensureMonthSheet(sheets, year, month);
+    const hr = await sheets.spreadsheets.values.get({ spreadsheetId: SPREADSHEET_ID, range: sheetName+'!1:1' });
+    const headers = hr.data.values?.[0] || [];
+    if (headers.includes(fechaCol)) return res.json({ ok: true, exists: true });
+    const range = sheetName + '!' + colLetter(headers.length) + '1';
+    await sheets.spreadsheets.values.update({ spreadsheetId: SPREADSHEET_ID, range, valueInputOption: 'RAW', requestBody: { values: [[fechaCol]] } });
+    res.json({ ok: true, exists: false });
+  } catch(e) { res.status(500).json({ error: e.message }); }
+});
+
 app.get('/asistencia/:fecha', async (req, res) => {
   try {
-    const [dd,mm] = req.params.fecha.split('-');
-    const fechaCol = dd+'/'+mm, year = new Date().getFullYear(), month = parseInt(mm);
+    const { year, month, fechaCol } = parseFecha(req.params.fecha);
     const sheets = await getSheets();
     const sheetName = await ensureMonthSheet(sheets, year, month);
     const hr = await sheets.spreadsheets.values.get({ spreadsheetId: SPREADSHEET_ID, range: sheetName+'!1:1' });
@@ -136,17 +153,15 @@ app.post('/asistencia', async (req, res) => {
   try {
     const { dni, fecha, marcar } = req.body;
     if (!dni||!fecha) return res.status(400).json({ error: 'Faltan campos: dni, fecha' });
-    const [dd,mm] = fecha.split('-');
-    const fechaCol = dd+'/'+mm, year = new Date().getFullYear(), month = parseInt(mm);
+    const { year, month, fechaCol } = parseFecha(fecha);
     const sheets = await getSheets();
     const sheetName = await ensureMonthSheet(sheets, year, month);
     const hr = await sheets.spreadsheets.values.get({ spreadsheetId: SPREADSHEET_ID, range: sheetName+'!1:1' });
     const colIdx = (hr.data.values?.[0]||[]).indexOf(fechaCol);
-    if (colIdx===-1) return res.status(400).json({ error: 'Fecha '+fechaCol+' no encontrada' });
+    if (colIdx===-1) return res.status(400).json({ error: 'Fecha '+fechaCol+' no encontrada en el sheet' });
 
     let targetRow;
     if (isSynthetic(dni)) {
-      // Sin DNI real: el ID sintético ~N codifica directamente el número de fila en el sheet
       targetRow = rowFromSynthetic(dni);
     } else {
       const dr = await sheets.spreadsheets.values.get({ spreadsheetId: SPREADSHEET_ID, range: sheetName+'!C2:C' });
