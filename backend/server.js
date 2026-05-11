@@ -63,7 +63,6 @@ app.get('/sabados', (_req, res) => {
 app.get('/personas', async (req, res) => {
   try {
     const q = (req.query.q||'').toLowerCase().trim();
-    const activity = (req.query.activity||'').toLowerCase().trim();
     const sheets = await getSheets();
     const r = await sheets.spreadsheets.values.get({ spreadsheetId: SPREADSHEET_ID, range: PERSONAS_SHEET+'!A2:E' });
     let personas = (r.data.values||[]).map((row, i) => ({
@@ -74,10 +73,6 @@ app.get('/personas', async (req, res) => {
       tipo: row[4]||'',
     }));
     if (q) personas = personas.filter(p => (p.nombre+' '+p.apellido+' '+p.dni).toLowerCase().includes(q));
-    if (activity && activity !== 'todos') {
-      const keyword = activity === 'geotech' ? 'geo' : activity;
-      personas = personas.filter(p => p.tipo.toLowerCase().includes(keyword));
-    }
     res.json(personas);
   } catch(e) { res.status(500).json({ error: e.message }); }
 });
