@@ -1,9 +1,601 @@
-﻿{
-  "name": "Asistencia",
-  "short_name": "Asistencia",
-  "start_url": "/Acompa-ar-para-crecer/asistencia/",
-  "display": "standalone",
-  "background_color": "#0d1117",
-  "theme_color": "#0d1117",
-  "orientation": "portrait"
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Asistencia">
+<meta name="theme-color" content="#0d1117">
+<link rel="manifest" href="manifest.json">
+<title>Asistencia</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#0d1117;--bg2:#161b27;--bg3:#1e2535;
+  --border:rgba(255,255,255,0.07);--bord2:rgba(255,255,255,0.14);
+  --text:#eef0f5;--muted:#6e7a8e;
+  --green:#00d68f;--gdim:rgba(0,214,143,0.12);
+  --red:#ff5c5c;--rdim:rgba(255,92,92,0.12);
+  --amber:#ffb547;--adim:rgba(255,181,71,0.12);
+  --blue:#4d9fff;--bdim:rgba(77,159,255,0.12);
+  --purple:#b47fff;--pdim:rgba(180,127,255,0.12);
+  --mono:'DM Mono',monospace;--sans:'DM Sans',sans-serif;
+  --sab:env(safe-area-inset-bottom,0px);--sat:env(safe-area-inset-top,0px);
 }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--sans);overflow:hidden}
+.shell{display:flex;flex-direction:column;height:100vh;height:100dvh}
+
+/* TOPBAR */
+.topbar{padding:calc(var(--sat) + 12px) 16px 10px;flex-shrink:0;display:flex;align-items:flex-end;justify-content:space-between;border-bottom:1px solid var(--border);gap:8px}
+.topbar-left h1{font-size:17px;font-weight:600;letter-spacing:-.3px}
+.topbar-left .sub{font-size:11px;color:var(--muted);font-family:var(--mono);margin-top:2px}
+.topbar-center{flex:1;display:flex;justify-content:center}
+.activity-badge{display:flex;align-items:center;gap:5px;background:var(--bg3);border:1px solid var(--bord2);border-radius:20px;padding:5px 12px;font-size:12px;font-weight:500;cursor:pointer;transition:all .15s;white-space:nowrap;color:var(--text)}
+.activity-badge:active{opacity:.7}
+.activity-badge .dot{width:6px;height:6px;border-radius:50%;background:var(--green);flex-shrink:0}
+.topbar-right{display:flex;align-items:flex-end;gap:6px}
+.counter{font-size:22px;font-weight:300;font-family:var(--mono);color:var(--green);letter-spacing:-1px;line-height:1}
+.counter-sub{font-size:9px;color:var(--muted);font-family:var(--mono);margin-top:2px;text-align:right}
+.gear-btn{background:none;border:none;color:var(--muted);cursor:pointer;padding:4px;display:flex;align-items:center}
+
+/* SEARCH */
+.search-wrap{padding:10px 14px 0;flex-shrink:0}
+.search-box{position:relative;display:flex;align-items:center}
+.search-icon{position:absolute;left:12px;color:var(--muted);pointer-events:none;width:16px;height:16px}
+#searchInput{width:100%;background:var(--bg2);border:1px solid var(--bord2);border-radius:11px;color:var(--text);font-family:var(--sans);font-size:15px;padding:10px 36px 10px 36px;outline:none;-webkit-appearance:none;transition:border-color .15s}
+#searchInput:focus{border-color:var(--green)}
+#searchInput::placeholder{color:var(--muted)}
+.clear-btn{position:absolute;right:10px;background:none;border:none;color:var(--muted);cursor:pointer;padding:6px;display:none;font-size:15px;line-height:1}
+.clear-btn.visible{display:block}
+
+/* DATE PILLS */
+.date-pills{display:flex;gap:6px;padding:8px 14px 0;overflow-x:auto;flex-shrink:0;scrollbar-width:none}
+.date-pills::-webkit-scrollbar{display:none}
+.pill{padding:5px 11px;border-radius:20px;border:1px solid var(--border);background:var(--bg2);color:var(--muted);font-size:11px;font-family:var(--mono);cursor:pointer;white-space:nowrap;transition:all .15s;flex-shrink:0}
+.pill.active{background:var(--gdim);border-color:var(--green);color:var(--green)}
+.pill.today{border-color:var(--bord2)}
+
+/* TIPO FILTER */
+.tipo-pills{display:flex;gap:6px;padding:8px 14px 0;overflow-x:auto;flex-shrink:0;scrollbar-width:none}
+.tipo-pills::-webkit-scrollbar{display:none}
+.tipo-pill{padding:4px 10px;border-radius:20px;border:1px solid var(--border);background:var(--bg2);color:var(--muted);font-size:10px;font-family:var(--mono);cursor:pointer;white-space:nowrap;transition:all .15s;flex-shrink:0}
+.tipo-pill.active{background:var(--bdim);border-color:var(--blue);color:var(--blue)}
+
+/* PROGRESS */
+.progress-wrap{padding:8px 14px 0;flex-shrink:0}
+.progress-bar{height:3px;background:var(--bg3);border-radius:2px;overflow:hidden}
+.progress-fill{height:100%;background:var(--green);border-radius:2px;transition:width .5s ease}
+.progress-label{font-size:10px;color:var(--muted);font-family:var(--mono);margin-top:4px}
+
+/* VIEW TABS */
+.view-tabs{display:flex;padding:8px 14px 0;gap:6px;flex-shrink:0}
+.view-tab{flex:1;padding:7px 4px;border-radius:9px;border:1px solid var(--border);background:var(--bg2);color:var(--muted);font-size:11px;font-weight:500;font-family:var(--sans);cursor:pointer;text-align:center;transition:all .15s}
+.view-tab .tc{font-family:var(--mono);font-size:10px;display:block;margin-top:1px}
+.view-tab.active{background:var(--gdim);border-color:var(--green);color:var(--green)}
+
+/* CONTENT */
+.content{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:6px 14px calc(80px + var(--sab))}
+
+/* GROUP HEADER */
+.group-header{font-size:10px;color:var(--muted);font-family:var(--mono);letter-spacing:.1em;text-transform:uppercase;padding:10px 2px 4px}
+
+/* PERSON CARD */
+.person-card{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg2);border:1px solid var(--border);border-radius:12px;margin-bottom:6px;transition:border-color .15s,background .15s;user-select:none;-webkit-user-select:none}
+.person-card.present{border-color:var(--green);background:var(--gdim)}
+.person-card.loading{opacity:.5;pointer-events:none}
+.avatar{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;flex-shrink:0;font-family:var(--mono)}
+.avatar.vol{background:var(--gdim);color:var(--green)}
+.avatar.alu{background:var(--bdim);color:var(--blue)}
+.avatar.geo{background:var(--pdim);color:var(--purple)}
+.avatar.otro{background:var(--adim);color:var(--amber)}
+.person-info{flex:1;min-width:0;cursor:pointer}
+.person-name{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.person-meta{display:flex;align-items:center;gap:5px;margin-top:2px}
+.badge{font-size:8px;font-family:var(--mono);padding:2px 6px;border-radius:8px;font-weight:500;letter-spacing:.04em;white-space:nowrap}
+.badge.vol{background:var(--gdim);color:var(--green)}
+.badge.alu{background:var(--bdim);color:var(--blue)}
+.badge.geo{background:var(--pdim);color:var(--purple)}
+.badge.otro{background:var(--adim);color:var(--amber)}
+.person-dni{font-size:10px;color:var(--muted);font-family:var(--mono)}
+.card-actions{display:flex;align-items:center;gap:6px;flex-shrink:0}
+.edit-btn{width:28px;height:28px;border-radius:8px;border:1px solid var(--bord2);background:var(--bg3);display:flex;align-items:center;justify-content:center;color:var(--muted);cursor:pointer;transition:all .15s}
+.check-btn{width:32px;height:32px;border-radius:9px;border:1.5px solid var(--bord2);background:var(--bg3);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;color:var(--muted);cursor:pointer}
+.person-card.present .check-btn{background:var(--green);border-color:var(--green);color:#0d1117}
+
+/* EMPTY / SPINNER */
+.empty{text-align:center;padding:40px 0;color:var(--muted);font-size:13px;line-height:1.7}
+.empty .emoji{font-size:32px;display:block;margin-bottom:8px}
+.spinner{width:20px;height:20px;border:2px solid var(--border);border-top-color:var(--green);border-radius:50%;animation:spin .7s linear infinite;margin:40px auto}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* FAB */
+.fab{position:fixed;bottom:calc(24px + var(--sab));right:20px;width:52px;height:52px;border-radius:16px;background:var(--green);color:#0d1117;border:none;cursor:pointer;font-size:24px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(0,214,143,.3);transition:transform .15s;z-index:100}
+.fab:active{transform:scale(.93)}
+
+/* TOAST */
+.toast{position:fixed;bottom:calc(90px + var(--sab));left:50%;transform:translateX(-50%) translateY(8px);background:var(--bg3);border:1px solid var(--bord2);color:var(--text);padding:8px 16px;border-radius:20px;font-size:12px;font-family:var(--mono);opacity:0;transition:all .25s;pointer-events:none;z-index:999;white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:200;display:flex;align-items:flex-end;opacity:0;pointer-events:none;transition:opacity .2s}
+.modal-overlay.open{opacity:1;pointer-events:auto}
+.modal{width:100%;background:var(--bg2);border-radius:20px 20px 0 0;border:1px solid var(--border);padding:20px 20px calc(24px + var(--sab));transform:translateY(100%);transition:transform .25s ease;max-height:88vh;overflow-y:auto}
+.modal-overlay.open .modal{transform:translateY(0)}
+.modal-handle{width:36px;height:4px;background:var(--bord2);border-radius:2px;margin:0 auto 18px}
+.modal h2{font-size:16px;font-weight:600;margin-bottom:16px}
+.modal label{font-size:10px;color:var(--muted);font-family:var(--mono);display:block;margin-bottom:5px;letter-spacing:.05em;text-transform:uppercase}
+.modal input{width:100%;background:var(--bg3);border:1px solid var(--bord2);border-radius:10px;color:var(--text);font-family:var(--sans);font-size:14px;padding:11px 12px;outline:none;-webkit-appearance:none;margin-bottom:14px}
+.modal input:focus{border-color:var(--green)}
+.modal-btns{display:flex;gap:8px}
+.btn-primary{flex:1;padding:13px;border-radius:11px;border:none;background:var(--green);color:#0d1117;font-size:14px;font-weight:600;cursor:pointer;font-family:var(--sans)}
+.btn-secondary{padding:13px 16px;border-radius:11px;border:1px solid var(--bord2);background:var(--bg3);color:var(--muted);font-size:14px;cursor:pointer;font-family:var(--sans)}
+.btn-danger{padding:13px 14px;border-radius:11px;border:1px solid var(--red);background:var(--rdim);color:var(--red);font-size:14px;cursor:pointer;font-family:var(--sans)}
+
+/* ACTIVITY FULLSCREEN */
+.act-overlay{position:fixed;inset:0;background:var(--bg);z-index:300;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;opacity:0;pointer-events:none;transition:opacity .2s}
+.act-overlay.open{opacity:1;pointer-events:auto}
+.act-overlay h2{font-size:22px;font-weight:600;margin-bottom:6px;text-align:center}
+.act-overlay .sub{font-size:14px;color:var(--muted);margin-bottom:28px;text-align:center}
+.act-options{display:flex;flex-direction:column;gap:12px;width:100%;max-width:340px}
+.act-option{padding:18px;border-radius:16px;border:1px solid var(--bord2);background:var(--bg2);cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:14px}
+.act-option:active{transform:scale(.98)}
+.act-icon{font-size:26px}
+.act-name{font-size:16px;font-weight:600}
+.act-desc{font-size:12px;color:var(--muted);margin-top:2px}
+</style>
+</head>
+<body>
+<div class="shell">
+  <div class="topbar">
+    <div class="topbar-left">
+      <h1>Asistencia</h1>
+      <div class="sub" id="topFecha">—</div>
+    </div>
+    <div class="topbar-center">
+      <button class="activity-badge" onclick="openActModal()" id="actBadge">
+        <span class="dot"></span>
+        <span id="actLabel">—</span>
+        <span style="color:var(--muted);font-size:10px">▾</span>
+      </button>
+    </div>
+    <div class="topbar-right">
+      <div>
+        <div class="counter" id="counterNum">—</div>
+        <div class="counter-sub" id="counterSub">presentes</div>
+      </div>
+      <button class="gear-btn" onclick="openSettings()">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <circle cx="12" cy="12" r="3"/>
+          <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="search-wrap">
+    <div class="search-box">
+      <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+      </svg>
+      <input id="searchInput" type="text" placeholder="Buscar por nombre, apellido o DNI…" autocomplete="off" autocorrect="off" spellcheck="false">
+      <button class="clear-btn" id="clearBtn" onclick="clearSearch()">✕</button>
+    </div>
+  </div>
+
+  <div class="date-pills" id="datePills"></div>
+  <div class="tipo-pills" id="tipoPills"></div>
+
+  <div class="progress-wrap">
+    <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+    <div class="progress-label" id="progressLabel"></div>
+  </div>
+
+  <div class="view-tabs">
+    <button class="view-tab active" id="vtTodos" onclick="setViewTab('todos')">Todos<span class="tc" id="vcTodos">—</span></button>
+    <button class="view-tab" id="vtPresentes" onclick="setViewTab('presentes')">Presentes<span class="tc" id="vcPresentes">0</span></button>
+    <button class="view-tab" id="vtAusentes" onclick="setViewTab('ausentes')">Ausentes<span class="tc" id="vcAusentes">—</span></button>
+  </div>
+
+  <div class="content" id="content"><div class="spinner"></div></div>
+</div>
+
+<button class="fab" onclick="openPersonaModal(null)">
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+</button>
+
+<div class="toast" id="toast"></div>
+
+<!-- ACTIVITY -->
+<div class="act-overlay" id="actOverlay">
+  <h2>¿Para qué actividad?</h2>
+  <p class="sub">Filtra los participantes según la actividad</p>
+  <div class="act-options">
+    <div class="act-option" onclick="selectActivity('apoyo')" style="border-color:rgba(0,214,143,.3)">
+      <span class="act-icon">📚</span>
+      <div><div class="act-name">Apoyo</div><div class="act-desc">Clases de apoyo escolar</div></div>
+    </div>
+    <div class="act-option" onclick="selectActivity('geotech')" style="border-color:rgba(180,127,255,.3)">
+      <span class="act-icon">💻</span>
+      <div><div class="act-name">GeoTech</div><div class="act-desc">Talleres de tecnología</div></div>
+    </div>
+    <div class="act-option" onclick="selectActivity('todos')" style="border-color:rgba(77,159,255,.3)">
+      <span class="act-icon">👥</span>
+      <div><div class="act-name">Todos</div><div class="act-desc">Sin filtro de actividad</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- PERSONA MODAL -->
+<div class="modal-overlay" id="personaOverlay" onclick="closePersonaOutside(event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <h2 id="personaTitle">Nueva persona</h2>
+    <label>Nombre</label><input type="text" id="pNombre" placeholder="Juan">
+    <label>Apellido</label><input type="text" id="pApellido" placeholder="García">
+    <label>DNI</label><input type="text" id="pDni" placeholder="12345678" inputmode="numeric">
+    <label>Tipo</label><input type="text" id="pTipo" placeholder="Alumno Apoyo">
+    <div class="modal-btns" id="personaBtns">
+      <button class="btn-secondary" onclick="closePersonaModal()">Cancelar</button>
+      <button class="btn-primary" onclick="savePersona()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- SETTINGS MODAL -->
+<div class="modal-overlay" id="settingsOverlay" onclick="closeSettingsOutside(event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <h2>Configuración</h2>
+    <label>URL del backend</label>
+    <input type="text" id="apiUrlInput" placeholder="https://tu-backend.onrender.com">
+    <div class="modal-btns">
+      <button class="btn-secondary" onclick="closeSettings()">Cancelar</button>
+      <button class="btn-primary" onclick="saveSettings()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let API_URL = localStorage.getItem('api_url') || 'http://localhost:3000';
+let currentActivity = localStorage.getItem('activity');
+let currentTipoFilter = 'todos';
+let currentViewTab = 'todos';
+let selectedDate = null;
+let sabados = [];
+let allPersonas = [];
+let presentesSet = new Set();
+let searchQuery = '';
+let searchTimeout = null;
+let editingPersona = null;
+
+(async function init() {
+  updateTopFecha();
+  updateActBadge();
+  if (!currentActivity) { openActModal(); return; }
+  await boot();
+})();
+
+async function boot() {
+  showSpinner();
+  await loadSabados();
+  await Promise.all([loadPersonas(), loadAsistencia()]);
+  render();
+}
+
+function pad(n) { return String(n).padStart(2,'0'); }
+function todayDDMM() { const d=new Date(); return pad(d.getDate())+'-'+pad(d.getMonth()+1); }
+function todayDisplay() {
+  const d=new Date();
+  const days=['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+  const months=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+  return `${days[d.getDay()]} ${d.getDate()} ${months[d.getMonth()]}`;
+}
+function updateTopFecha() { document.getElementById('topFecha').textContent = todayDisplay(); }
+function showSpinner() { document.getElementById('content').innerHTML = '<div class="spinner"></div>'; }
+
+async function apiFetch(path, opts) {
+  const r = await fetch(API_URL + path, opts);
+  if (!r.ok) { const e = await r.json().catch(()=>({error:r.statusText})); throw new Error(e.error||r.statusText); }
+  return r.json();
+}
+
+async function loadSabados() {
+  try {
+    const data = await apiFetch('/sabados');
+    sabados = data.sabados;
+    const today = todayDDMM().replace('-','/');
+    const found = sabados.find(s => s.ddmm === today);
+    if (found) { selectedDate = todayDDMM(); }
+    else if (sabados.length > 0) {
+      const now = new Date();
+      const past = sabados.filter(s => new Date(s.iso) <= now);
+      selectedDate = (past.length ? past[past.length-1] : sabados[0]).ddmm.replace('/','-');
+    }
+    renderDatePills();
+  } catch(e) { console.error('loadSabados:',e); }
+}
+
+async function loadPersonas() {
+  try {
+    const q = currentActivity && currentActivity !== 'todos' ? `?activity=${currentActivity}` : '';
+    allPersonas = await apiFetch('/personas' + q);
+  } catch(e) { console.error('loadPersonas:',e); allPersonas = []; }
+}
+
+async function loadAsistencia() {
+  if (!selectedDate) return;
+  try {
+    const data = await apiFetch('/asistencia/' + selectedDate);
+    presentesSet = new Set(data.presentes.map(p => String(p.dni)));
+  } catch(e) { console.error('loadAsistencia:',e); }
+}
+
+function getDisplayPersonas() {
+  let list = allPersonas;
+  if (searchQuery) {
+    const q = searchQuery.toLowerCase();
+    list = list.filter(p => `${p.nombre} ${p.apellido} ${p.dni}`.toLowerCase().includes(q));
+  }
+  if (currentTipoFilter !== 'todos') {
+    list = list.filter(p => p.tipo.toLowerCase().includes(currentTipoFilter.toLowerCase()));
+  }
+  if (currentViewTab === 'presentes') list = list.filter(p => presentesSet.has(String(p.dni)));
+  else if (currentViewTab === 'ausentes') list = list.filter(p => !presentesSet.has(String(p.dni)));
+  return list;
+}
+
+function render() {
+  renderTipoPills();
+  renderTabCounts();
+  updateCounter();
+  renderList();
+}
+
+function renderDatePills() {
+  const c = document.getElementById('datePills');
+  if (!sabados.length) { c.innerHTML=''; return; }
+  const today = todayDDMM().replace('-','/');
+  c.innerHTML = sabados.map(s => {
+    const key = s.ddmm.replace('/','-');
+    return `<button class="pill${key===selectedDate?' active':''}${s.ddmm===today?' today':''}" onclick="selectDate('${key}')">${s.ddmm}${s.ddmm===today?' ●':''}</button>`;
+  }).join('');
+}
+
+function renderTipoPills() {
+  const tipos = [...new Set(allPersonas.map(p=>p.tipo).filter(Boolean))].sort();
+  const all = ['todos', ...tipos];
+  document.getElementById('tipoPills').innerHTML = all.map(t =>
+    `<button class="tipo-pill${t===currentTipoFilter?' active':''}" onclick="setTipoFilter('${esc(t)}')">${t==='todos'?'Todos':esc(t)}</button>`
+  ).join('');
+}
+
+function renderTabCounts() {
+  const presentes = allPersonas.filter(p => presentesSet.has(String(p.dni))).length;
+  const ausentes = allPersonas.length - presentes;
+  document.getElementById('vcTodos').textContent = allPersonas.length;
+  document.getElementById('vcPresentes').textContent = presentes;
+  document.getElementById('vcAusentes').textContent = ausentes;
+}
+
+function renderList() {
+  const personas = getDisplayPersonas();
+  const content = document.getElementById('content');
+  if (!personas.length) {
+    content.innerHTML = `<div class="empty"><span class="emoji">🤷</span>Sin resultados</div>`;
+    return;
+  }
+  const groups = {};
+  personas.forEach(p => {
+    const k = (p.apellido[0]||'?').toUpperCase();
+    if (!groups[k]) groups[k] = [];
+    groups[k].push(p);
+  });
+  let html = '';
+  Object.keys(groups).sort().forEach(letter => {
+    html += `<div class="group-header">${letter}</div>`;
+    html += groups[letter].map(p => cardHTML(p)).join('');
+  });
+  content.innerHTML = html;
+}
+
+function cardHTML(p) {
+  const isPresent = presentesSet.has(String(p.dni));
+  const cls = tipoClass(p.tipo);
+  const initials = ((p.nombre[0]||'')+(p.apellido[0]||'')).toUpperCase();
+  const pj = JSON.stringify(p).replace(/"/g,'&quot;');
+  return `<div class="person-card${isPresent?' present':''}" id="card-${p.dni}">
+    <div class="avatar ${cls}">${initials}</div>
+    <div class="person-info" onclick="toggleAsistencia(${pj})">
+      <div class="person-name">${esc(p.apellido)}, ${esc(p.nombre)}</div>
+      <div class="person-meta">
+        <span class="badge ${cls}">${esc(p.tipo)||'—'}</span>
+        <span class="person-dni">${esc(p.dni)}</span>
+      </div>
+    </div>
+    <div class="card-actions">
+      <div class="edit-btn" onclick="openPersonaModal(${pj})">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+      </div>
+      <div class="check-btn" onclick="toggleAsistencia(${pj})">${isPresent?checkIcon():''}</div>
+    </div>
+  </div>`;
+}
+
+function checkIcon() {
+  return `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>`;
+}
+
+function tipoClass(tipo) {
+  const t=(tipo||'').toLowerCase();
+  if(t.includes('voluntario')) return 'vol';
+  if(t.includes('alumno')) return 'alu';
+  if(t.includes('geo')) return 'geo';
+  return 'otro';
+}
+
+function esc(str) {
+  return String(str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function updateCounter() {
+  const presentes = allPersonas.filter(p => presentesSet.has(String(p.dni))).length;
+  const total = allPersonas.length;
+  document.getElementById('counterNum').textContent = presentes;
+  document.getElementById('counterSub').textContent = `de ${total}`;
+  const pct = total > 0 ? Math.round((presentes/total)*100) : 0;
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressLabel').textContent = total > 0 ? `${presentes} presentes · ${pct}%` : '';
+}
+
+async function toggleAsistencia(persona) {
+  const card = document.getElementById('card-'+persona.dni);
+  if (!card || card.classList.contains('loading')) return;
+  if (!selectedDate) { showToast('Seleccioná una fecha primero', true); return; }
+  card.classList.add('loading');
+  const wasPresent = presentesSet.has(String(persona.dni));
+  const marcar = !wasPresent;
+  if (marcar) presentesSet.add(String(persona.dni));
+  else presentesSet.delete(String(persona.dni));
+  updateCounter(); renderTabCounts();
+  card.classList.remove('loading');
+  card.classList.toggle('present', marcar);
+  card.querySelector('.check-btn').innerHTML = marcar ? checkIcon() : '';
+  try {
+    await apiFetch('/asistencia', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({dni:String(persona.dni), fecha:selectedDate, marcar}),
+    });
+    showToast(marcar ? `✓ ${persona.apellido} presente` : `${persona.apellido} desmarcado`);
+    if (currentViewTab !== 'todos') renderList();
+  } catch(e) {
+    if (marcar) presentesSet.delete(String(persona.dni));
+    else presentesSet.add(String(persona.dni));
+    updateCounter(); renderTabCounts();
+    card.classList.toggle('present', !marcar);
+    card.querySelector('.check-btn').innerHTML = !marcar ? checkIcon() : '';
+    showToast('Error: '+e.message, true);
+  }
+}
+
+async function selectDate(ddmm) {
+  selectedDate = ddmm;
+  renderDatePills();
+  showSpinner();
+  await loadAsistencia();
+  render();
+}
+
+function setTipoFilter(tipo) {
+  currentTipoFilter = tipo;
+  renderTipoPills();
+  renderList();
+}
+
+function setViewTab(tab) {
+  currentViewTab = tab;
+  ['Todos','Presentes','Ausentes'].forEach(t => {
+    document.getElementById('vt'+t).classList.toggle('active', t.toLowerCase()===tab);
+  });
+  renderList();
+}
+
+function openActModal() { document.getElementById('actOverlay').classList.add('open'); }
+function closeActModal() { document.getElementById('actOverlay').classList.remove('open'); }
+
+async function selectActivity(act) {
+  currentActivity = act;
+  localStorage.setItem('activity', act);
+  updateActBadge();
+  closeActModal();
+  currentTipoFilter = 'todos';
+  showSpinner();
+  await loadPersonas();
+  await loadAsistencia();
+  render();
+}
+
+function updateActBadge() {
+  const labels = {apoyo:'Apoyo', geotech:'GeoTech', todos:'Todos'};
+  document.getElementById('actLabel').textContent = labels[currentActivity] || '—';
+}
+
+function openPersonaModal(persona) {
+  editingPersona = persona;
+  document.getElementById('personaTitle').textContent = persona ? 'Editar persona' : 'Nueva persona';
+  document.getElementById('pNombre').value = persona?.nombre || '';
+  document.getElementById('pApellido').value = persona?.apellido || '';
+  document.getElementById('pDni').value = persona?.dni || '';
+  document.getElementById('pTipo').value = persona?.tipo || '';
+  const btns = document.getElementById('personaBtns');
+  btns.innerHTML = persona
+    ? `<button class="btn-danger" onclick="closePersonaModal()">Cancelar</button><button class="btn-primary" onclick="savePersona()">Guardar</button>`
+    : `<button class="btn-secondary" onclick="closePersonaModal()">Cancelar</button><button class="btn-primary" onclick="savePersona()">Guardar</button>`;
+  document.getElementById('personaOverlay').classList.add('open');
+}
+
+function closePersonaModal() { document.getElementById('personaOverlay').classList.remove('open'); editingPersona=null; }
+function closePersonaOutside(e) { if(e.target===document.getElementById('personaOverlay')) closePersonaModal(); }
+
+async function savePersona() {
+  const nombre = document.getElementById('pNombre').value.trim();
+  const apellido = document.getElementById('pApellido').value.trim();
+  const dni = document.getElementById('pDni').value.trim();
+  const tipo = document.getElementById('pTipo').value.trim();
+  if (!nombre||!apellido||!dni) { showToast('Completá nombre, apellido y DNI', true); return; }
+  try {
+    if (editingPersona) {
+      await apiFetch('/personas/'+editingPersona.rowIndex, {
+        method:'PUT', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({nombre,apellido,dni,tipo}),
+      });
+      showToast('Persona actualizada ✓');
+    } else {
+      await apiFetch('/personas', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({nombre,apellido,dni,tipo}),
+      });
+      showToast('Persona agregada ✓');
+    }
+    closePersonaModal();
+    await loadPersonas();
+    render();
+  } catch(e) { showToast('Error: '+e.message, true); }
+}
+
+document.getElementById('searchInput').addEventListener('input', function() {
+  document.getElementById('clearBtn').classList.toggle('visible', this.value.length>0);
+  clearTimeout(searchTimeout);
+  const q = this.value;
+  searchTimeout = setTimeout(()=>{ searchQuery=q; renderList(); }, 200);
+});
+
+function clearSearch() {
+  document.getElementById('searchInput').value='';
+  document.getElementById('clearBtn').classList.remove('visible');
+  searchQuery=''; renderList();
+}
+
+let toastTimer;
+function showToast(msg, isError=false) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.borderColor = isError ? 'var(--red)' : 'var(--bord2)';
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>t.classList.remove('show'), 2500);
+}
+
+function openSettings() { document.getElementById('apiUrlInput').value=API_URL; document.getElementById('settingsOverlay').classList.add('open'); }
+function closeSettings() { document.getElementById('settingsOverlay').classList.remove('open'); }
+function closeSettingsOutside(e) { if(e.target===document.getElementById('settingsOverlay')) closeSettings(); }
+function saveSettings() {
+  const url = document.getElementById('apiUrlInput').value.trim().replace(/\/$/,'');
+  if(!url) return;
+  API_URL=url; localStorage.setItem('api_url',url);
+  closeSettings(); showToast('URL guardada ✓'); boot();
+}
+</script>
+</body>
+</html>
