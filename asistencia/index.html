@@ -234,7 +234,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--s
     <h2 id="personaTitle">Nueva persona</h2>
     <label>Nombre</label><input type="text" id="pNombre" placeholder="Juan">
     <label>Apellido</label><input type="text" id="pApellido" placeholder="García">
-    <label>DNI</label><input type="text" id="pDni" placeholder="12345678" inputmode="numeric">
+    <label>DNI <span style="color:var(--muted);font-size:9px">(opcional)</span></label><input type="text" id="pDni" placeholder="12345678" inputmode="numeric">
     <label>Tipo</label><input type="text" id="pTipo" placeholder="Alumno Apoyo">
     <div class="modal-btns" id="personaBtns">
       <button class="btn-secondary" onclick="closePersonaModal()">Cancelar</button>
@@ -411,7 +411,7 @@ function cardHTML(p) {
       <div class="person-name">${esc(p.apellido)}, ${esc(p.nombre)}</div>
       <div class="person-meta">
         <span class="badge ${cls}">${esc(p.tipo)||'—'}</span>
-        <span class="person-dni">${esc(p.dni)}</span>
+        ${p.dni && !p.dni.startsWith('~') ? `<span class="person-dni">${esc(p.dni)}</span>` : ''}
       </div>
     </div>
     <div class="card-actions">
@@ -543,7 +543,7 @@ async function savePersona() {
   const apellido = document.getElementById('pApellido').value.trim();
   const dni = document.getElementById('pDni').value.trim();
   const tipo = document.getElementById('pTipo').value.trim();
-  if (!nombre||!apellido||!dni) { showToast('Completá nombre, apellido y DNI', true); return; }
+  if (!nombre||!apellido) { showToast('Completá nombre y apellido', true); return; }
   try {
     if (editingPersona) {
       await apiFetch('/personas/'+editingPersona.rowIndex, {
