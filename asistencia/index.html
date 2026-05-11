@@ -50,12 +50,11 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--s
 .clear-btn{position:absolute;right:10px;background:none;border:none;color:var(--muted);cursor:pointer;padding:6px;display:none;font-size:15px;line-height:1}
 .clear-btn.visible{display:block}
 
-/* DATE PILLS */
-.date-pills{display:flex;gap:6px;padding:8px 14px 0;overflow-x:auto;flex-shrink:0;scrollbar-width:none}
-.date-pills::-webkit-scrollbar{display:none}
-.pill{padding:5px 11px;border-radius:20px;border:1px solid var(--border);background:var(--bg2);color:var(--muted);font-size:11px;font-family:var(--mono);cursor:pointer;white-space:nowrap;transition:all .15s;flex-shrink:0}
-.pill.active{background:var(--gdim);border-color:var(--green);color:var(--green)}
-.pill.today{border-color:var(--bord2)}
+/* DATE SELECTOR */
+.date-sel-wrap{padding:8px 14px 0;flex-shrink:0}
+.date-sel-btn{display:flex;align-items:center;gap:8px;width:100%;background:var(--bg2);border:1px solid var(--bord2);border-radius:11px;color:var(--muted);font-family:var(--mono);font-size:12px;padding:9px 14px;cursor:pointer;text-align:left;transition:all .15s}
+.date-sel-btn:active{opacity:.7}
+.date-sel-btn.selected{border-color:var(--green);color:var(--green)}
 
 /* TIPO FILTER */
 .tipo-pills{display:flex;gap:6px;padding:8px 14px 0;overflow-x:auto;flex-shrink:0;scrollbar-width:none}
@@ -184,7 +183,14 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--s
     </div>
   </div>
 
-  <div class="date-pills" id="datePills"></div>
+  <div class="date-sel-wrap">
+    <button class="date-sel-btn" id="dateSelBtn" onclick="openDatePicker()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      <span id="dateSelLabel">Seleccionar fecha</span>
+      <span style="margin-left:auto;color:var(--muted);font-size:10px">▾</span>
+    </button>
+    <input type="date" id="hiddenDateInput" style="position:fixed;top:-200px;left:-200px;opacity:0;width:1px;height:1px" onchange="onDatePicked(this.value)">
+  </div>
   <div class="tipo-pills" id="tipoPills"></div>
 
   <div class="progress-wrap">
@@ -235,7 +241,14 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--s
     <label>Nombre</label><input type="text" id="pNombre" placeholder="Juan">
     <label>Apellido</label><input type="text" id="pApellido" placeholder="García">
     <label>DNI <span style="color:var(--muted);font-size:9px">(opcional)</span></label><input type="text" id="pDni" placeholder="12345678" inputmode="numeric">
-    <label>Tipo</label><input type="text" id="pTipo" placeholder="Alumno Apoyo">
+    <label>Actividad</label>
+    <div style="display:flex;gap:8px;margin-bottom:14px" id="actividadBtns">
+      <button type="button" onclick="setActividadModal('Apoyo')" id="btnActApoyo" style="flex:1;padding:10px;border-radius:10px;border:1px solid var(--bord2);background:var(--bg3);color:var(--muted);font-family:var(--sans);font-size:13px;cursor:pointer;transition:all .15s">Apoyo</button>
+      <button type="button" onclick="setActividadModal('GeoTech')" id="btnActGeo" style="flex:1;padding:10px;border-radius:10px;border:1px solid var(--bord2);background:var(--bg3);color:var(--muted);font-family:var(--sans);font-size:13px;cursor:pointer;transition:all .15s">GeoTech</button>
+      <button type="button" onclick="setActividadModal('Apoyo,GeoTech')" id="btnActAmbos" style="flex:1;padding:10px;border-radius:10px;border:1px solid var(--bord2);background:var(--bg3);color:var(--muted);font-family:var(--sans);font-size:13px;cursor:pointer;transition:all .15s">Ambos</button>
+    </div>
+    <input type="hidden" id="pActividad">
+    <label>Tipo</label><input type="text" id="pTipo" placeholder="Estudiante">
     <div class="modal-btns" id="personaBtns">
       <button class="btn-secondary" onclick="closePersonaModal()">Cancelar</button>
       <button class="btn-primary" onclick="savePersona()">Guardar</button>
@@ -262,8 +275,7 @@ let API_URL = localStorage.getItem('api_url') || 'http://localhost:3000';
 let currentActivity = localStorage.getItem('activity');
 let currentTipoFilter = 'todos';
 let currentViewTab = 'todos';
-let selectedDate = null;
-let sabados = [];
+let selectedDate = null; // "YYYY-MM-DD"
 let allPersonas = [];
 let presentesSet = new Set();
 let searchQuery = '';
@@ -277,15 +289,25 @@ let editingPersona = null;
   await boot();
 })();
 
+function autoSaturday() {
+  const now = new Date();
+  const daysBack = (now.getDay() - 6 + 7) % 7;
+  const sat = new Date(now);
+  sat.setDate(now.getDate() - daysBack);
+  return sat.toISOString().split('T')[0];
+}
+
 async function boot() {
   showSpinner();
-  await loadSabados();
+  if (!selectedDate) {
+    selectedDate = autoSaturday();
+    updateDateBtn();
+  }
   await Promise.all([loadPersonas(), loadAsistencia()]);
   render();
 }
 
 function pad(n) { return String(n).padStart(2,'0'); }
-function todayDDMM() { const d=new Date(); return pad(d.getDate())+'-'+pad(d.getMonth()+1); }
 function todayDisplay() {
   const d=new Date();
   const days=['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
@@ -301,20 +323,31 @@ async function apiFetch(path, opts) {
   return r.json();
 }
 
-async function loadSabados() {
+function updateDateBtn() {
+  if (!selectedDate) return;
+  const [yyyy, mm, dd] = selectedDate.split('-');
+  const days = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+  const d = new Date(selectedDate + 'T12:00:00');
+  document.getElementById('dateSelLabel').textContent = `${days[d.getDay()]} ${dd}/${mm}/${yyyy}`;
+  document.getElementById('dateSelBtn').classList.add('selected');
+}
+
+function openDatePicker() {
+  const input = document.getElementById('hiddenDateInput');
+  if (selectedDate) input.value = selectedDate;
+  try { input.showPicker(); } catch(_) { input.click(); }
+}
+
+async function onDatePicked(value) {
+  if (!value) return;
+  selectedDate = value;
+  updateDateBtn();
+  showSpinner();
   try {
-    const data = await apiFetch('/sabados');
-    sabados = data.sabados;
-    const today = todayDDMM().replace('-','/');
-    const found = sabados.find(s => s.ddmm === today);
-    if (found) { selectedDate = todayDDMM(); }
-    else if (sabados.length > 0) {
-      const now = new Date();
-      const past = sabados.filter(s => new Date(s.iso) <= now);
-      selectedDate = (past.length ? past[past.length-1] : sabados[0]).ddmm.replace('/','-');
-    }
-    renderDatePills();
-  } catch(e) { console.error('loadSabados:',e); }
+    await apiFetch('/fecha', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ fecha: value }) });
+  } catch(e) { showToast('Error al crear fecha: ' + e.message, true); }
+  await loadAsistencia();
+  render();
 }
 
 async function loadPersonas() {
@@ -333,6 +366,14 @@ async function loadAsistencia() {
 
 function getDisplayPersonas() {
   let list = allPersonas;
+  // Filtro por actividad: solo aplica si alguna persona tiene actividad cargada
+  if (currentActivity && currentActivity !== 'todos') {
+    const anyTagged = list.some(p => p.actividad && p.actividad.trim());
+    if (anyTagged) {
+      const kw = currentActivity === 'geotech' ? 'geo' : currentActivity;
+      list = list.filter(p => !p.actividad.trim() || p.actividad.toLowerCase().includes(kw));
+    }
+  }
   if (searchQuery) {
     const q = searchQuery.toLowerCase();
     list = list.filter(p => `${p.nombre} ${p.apellido} ${p.dni}`.toLowerCase().includes(q));
@@ -350,16 +391,6 @@ function render() {
   renderTabCounts();
   updateCounter();
   renderList();
-}
-
-function renderDatePills() {
-  const c = document.getElementById('datePills');
-  if (!sabados.length) { c.innerHTML=''; return; }
-  const today = todayDDMM().replace('-','/');
-  c.innerHTML = sabados.map(s => {
-    const key = s.ddmm.replace('/','-');
-    return `<button class="pill${key===selectedDate?' active':''}${s.ddmm===today?' today':''}" onclick="selectDate('${key}')">${s.ddmm}${s.ddmm===today?' ●':''}</button>`;
-  }).join('');
 }
 
 function renderTipoPills() {
@@ -401,7 +432,7 @@ function renderList() {
 
 function cardHTML(p) {
   const isPresent = presentesSet.has(String(p.dni));
-  const cls = tipoClass(p.tipo);
+  const cls = tipoClass(p.tipo, p.actividad);
   const initials = ((p.nombre[0]||'')+(p.apellido[0]||'')).toUpperCase();
   const pj = JSON.stringify(p).replace(/"/g,'&quot;');
   return `<div class="person-card${isPresent?' present':''}" id="card-${p.dni}">
@@ -409,7 +440,7 @@ function cardHTML(p) {
     <div class="person-info" onclick="toggleAsistencia(${pj})">
       <div class="person-name">${esc(p.apellido)}, ${esc(p.nombre)}</div>
       <div class="person-meta">
-        <span class="badge ${cls}">${esc(p.tipo)||'—'}</span>
+        <span class="badge ${cls}">${esc(p.actividad||p.tipo)||'—'}</span>
         ${p.dni && !p.dni.startsWith('~') ? `<span class="person-dni">${esc(p.dni)}</span>` : ''}
       </div>
     </div>
@@ -426,11 +457,12 @@ function checkIcon() {
   return `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>`;
 }
 
-function tipoClass(tipo) {
+function tipoClass(tipo, actividad) {
+  const a=(actividad||'').toLowerCase();
+  if(a.includes('geo')) return 'geo';
+  if(a.includes('apoyo')) return 'alu';
   const t=(tipo||'').toLowerCase();
   if(t.includes('voluntario')) return 'vol';
-  if(t.includes('alumno')) return 'alu';
-  if(t.includes('geo')) return 'geo';
   return 'otro';
 }
 
@@ -478,13 +510,6 @@ async function toggleAsistencia(persona) {
   }
 }
 
-async function selectDate(ddmm) {
-  selectedDate = ddmm;
-  renderDatePills();
-  showSpinner();
-  await loadAsistencia();
-  render();
-}
 
 function setTipoFilter(tipo) {
   currentTipoFilter = tipo;
@@ -510,8 +535,7 @@ async function selectActivity(act) {
   closeActModal();
   currentTipoFilter = 'todos';
   showSpinner();
-  await loadPersonas();
-  await loadAsistencia();
+  await Promise.all([loadPersonas(), loadAsistencia()]);
   render();
 }
 
@@ -520,12 +544,25 @@ function updateActBadge() {
   document.getElementById('actLabel').textContent = labels[currentActivity] || '—';
 }
 
+function setActividadModal(val) {
+  document.getElementById('pActividad').value = val;
+  ['Apoyo','GeoTech','Apoyo,GeoTech'].forEach((v,i) => {
+    const btn = document.getElementById(['btnActApoyo','btnActGeo','btnActAmbos'][i]);
+    const active = v === val;
+    btn.style.background = active ? 'var(--gdim)' : 'var(--bg3)';
+    btn.style.borderColor = active ? 'var(--green)' : 'var(--bord2)';
+    btn.style.color = active ? 'var(--green)' : 'var(--muted)';
+  });
+}
+
 function openPersonaModal(persona) {
   editingPersona = persona;
   document.getElementById('personaTitle').textContent = persona ? 'Editar persona' : 'Nueva persona';
   document.getElementById('pNombre').value = persona?.nombre || '';
   document.getElementById('pApellido').value = persona?.apellido || '';
-  document.getElementById('pDni').value = persona?.dni || '';
+  document.getElementById('pDni').value = (!persona?.dni || persona.dni.startsWith('~')) ? '' : persona.dni;
+  document.getElementById('pActividad').value = persona?.actividad || '';
+  setActividadModal(persona?.actividad || '');
   document.getElementById('pTipo').value = persona?.tipo || '';
   const btns = document.getElementById('personaBtns');
   btns.innerHTML = persona
@@ -541,19 +578,20 @@ async function savePersona() {
   const nombre = document.getElementById('pNombre').value.trim();
   const apellido = document.getElementById('pApellido').value.trim();
   const dni = document.getElementById('pDni').value.trim();
+  const actividad = document.getElementById('pActividad').value.trim();
   const tipo = document.getElementById('pTipo').value.trim();
   if (!nombre||!apellido) { showToast('Completá nombre y apellido', true); return; }
   try {
     if (editingPersona) {
       await apiFetch('/personas/'+editingPersona.rowIndex, {
         method:'PUT', headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({nombre,apellido,dni,tipo}),
+        body: JSON.stringify({nombre,apellido,dni,actividad,tipo}),
       });
       showToast('Persona actualizada ✓');
     } else {
       await apiFetch('/personas', {
         method:'POST', headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({nombre,apellido,dni,tipo}),
+        body: JSON.stringify({nombre,apellido,dni,actividad,tipo}),
       });
       showToast('Persona agregada ✓');
     }
