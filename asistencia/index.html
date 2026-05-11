@@ -319,8 +319,7 @@ async function loadSabados() {
 
 async function loadPersonas() {
   try {
-    const q = currentActivity && currentActivity !== 'todos' ? `?activity=${currentActivity}` : '';
-    allPersonas = await apiFetch('/personas' + q);
+    allPersonas = await apiFetch('/personas');
   } catch(e) { console.error('loadPersonas:',e); allPersonas = []; }
 }
 
