@@ -183,13 +183,13 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--s
     </div>
   </div>
 
-  <div class="date-sel-wrap">
-    <button class="date-sel-btn" id="dateSelBtn" onclick="openDatePicker()">
+  <div class="date-sel-wrap" style="position:relative">
+    <button class="date-sel-btn" id="dateSelBtn">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
       <span id="dateSelLabel">Seleccionar fecha</span>
       <span style="margin-left:auto;color:var(--muted);font-size:10px">▾</span>
     </button>
-    <input type="date" id="hiddenDateInput" style="position:fixed;top:-200px;left:-200px;opacity:0;width:1px;height:1px" onchange="onDatePicked(this.value)">
+    <input type="date" id="hiddenDateInput" onchange="onDatePicked(this.value)" style="position:absolute;inset:0;opacity:0;width:100%;height:100%;cursor:pointer;border:none;background:none">
   </div>
   <div class="tipo-pills" id="tipoPills"></div>
 
@@ -330,12 +330,6 @@ function updateDateBtn() {
   const d = new Date(selectedDate + 'T12:00:00');
   document.getElementById('dateSelLabel').textContent = `${days[d.getDay()]} ${dd}/${mm}/${yyyy}`;
   document.getElementById('dateSelBtn').classList.add('selected');
-}
-
-function openDatePicker() {
-  const input = document.getElementById('hiddenDateInput');
-  if (selectedDate) input.value = selectedDate;
-  try { input.showPicker(); } catch(_) { input.click(); }
 }
 
 async function onDatePicked(value) {
