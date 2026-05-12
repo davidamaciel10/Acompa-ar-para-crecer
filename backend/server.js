@@ -128,6 +128,22 @@ app.post('/fecha', async (req, res) => {
   } catch(e) { res.status(500).json({ error: e.message }); }
 });
 
+app.delete('/personas/:rowIndex', async (req, res) => {
+  try {
+    const rowIndex = parseInt(req.params.rowIndex);
+    if (isNaN(rowIndex) || rowIndex < 2) return res.status(400).json({ error: 'rowIndex inválido' });
+    const sheets = await getSheets();
+    const meta = await sheets.spreadsheets.get({ spreadsheetId: SPREADSHEET_ID });
+    const sheet = meta.data.sheets.find(s => s.properties.title === PERSONAS_SHEET);
+    if (!sheet) return res.status(404).json({ error: 'Sheet no encontrado' });
+    await sheets.spreadsheets.batchUpdate({
+      spreadsheetId: SPREADSHEET_ID,
+      requestBody: { requests: [{ deleteDimension: { range: { sheetId: sheet.properties.sheetId, dimension: 'ROWS', startIndex: rowIndex - 1, endIndex: rowIndex } } }] },
+    });
+    res.json({ ok: true });
+  } catch(e) { res.status(500).json({ error: e.message }); }
+});
+
 app.get('/asistencia/:fecha', async (req, res) => {
   try {
     const { year, month, fechaCol } = parseFecha(req.params.fecha);
