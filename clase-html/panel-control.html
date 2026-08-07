@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Panel Auto GEOTECH</title>
+
+  <!--
+    ============================================================
+    PANEL DE CONTROL · AUTO GEOTECH
+    ------------------------------------------------------------
+    Este es el proyecto que armamos en la Clase 1 de HTML.
+    Todo lo que se VE está dentro de <body>, más abajo.
+
+    Ojo: por ahora los botones NO mueven el auto de verdad.
+    Hoy solo construimos el TABLERO (la estructura en HTML).
+    Que se muevan y se conecten al auto real lo vemos después,
+    con JavaScript y hardware. ¡Un paso a la vez! 🚗
+    ============================================================
+  -->
+
+  <style>
+    /* El CSS (los colores y la forma) lo vemos en la próxima clase.
+       Por ahora lo dejamos armado para que el panel se vea lindo. */
+    :root{
+      --bg:#0e1424; --panel:#1b2540; --line:#2b3a63;
+      --txt:#e8edf9; --muted:#9fb0d4;
+      --verde:#37e0c8; --amarillo:#ffcf4d; --rosa:#ff6b9d;
+    }
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{
+      font-family:'Fredoka','Segoe UI',system-ui,sans-serif;
+      background:radial-gradient(800px 500px at 50% -10%,#1a2b52,transparent),var(--bg);
+      color:var(--txt);min-height:100vh;
+      display:flex;flex-direction:column;align-items:center;
+      padding:32px 18px 60px;
+    }
+    h1{font-size:2rem;text-align:center;margin-bottom:6px;}
+    .sub{color:var(--muted);text-align:center;margin-bottom:26px;}
+
+    .auto{font-size:4rem;text-align:center;margin:6px 0 20px;}
+
+    .panel{
+      background:var(--panel);border:1px solid var(--line);
+      border-radius:24px;padding:26px;width:100%;max-width:420px;
+      box-shadow:0 24px 60px rgba(0,0,0,.35);
+    }
+    h2{font-size:1.15rem;margin:22px 0 12px;color:var(--amarillo);}
+    h2:first-of-type{margin-top:6px;}
+
+    /* botonera de movimiento en cruz */
+    .pad{
+      display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:280px;margin:0 auto;
+    }
+    .pad button{grid-column:2;}
+    .pad .fila{display:contents;}
+    .pad .izq{grid-column:1;grid-row:2;}
+    .pad .frenar{grid-column:2;grid-row:2;}
+    .pad .der{grid-column:3;grid-row:2;}
+    .pad .adelante{grid-column:2;grid-row:1;}
+    .pad .atras{grid-column:2;grid-row:3;}
+
+    button{
+      font-family:inherit;font-size:1rem;font-weight:600;
+      border:none;border-radius:14px;padding:14px 10px;cursor:pointer;
+      background:#26335a;color:var(--txt);transition:.15s;
+    }
+    button:hover{transform:translateY(-2px);background:var(--verde);color:#062b26;}
+    button:active{transform:translateY(0);}
+    .frenar{background:var(--rosa);color:#3b0d21;}
+    .frenar:hover{background:#ff86b3;color:#3b0d21;}
+
+    .motores{display:flex;gap:10px;flex-wrap:wrap;}
+    .motores button{flex:1;min-width:130px;}
+
+    /* pantallita de estado (esto ya usa un poquito de JavaScript,
+       lo mostramos solo para que "vean algo" al hacer clic) */
+    .estado{
+      margin-top:22px;text-align:center;color:var(--muted);
+      background:#0b1120;border:1px solid var(--line);border-radius:14px;
+      padding:14px;font-size:1.05rem;
+    }
+    .estado b{color:var(--verde);}
+    footer{margin-top:28px;color:var(--muted);font-size:.85rem;text-align:center;}
+  </style>
+</head>
+
+<body>
+
+  <!-- ===== TÍTULO ===== -->
+  <h1>🚗 Panel de Control · Auto GEOTECH</h1>
+  <p class="sub">Nuestro primer tablero hecho con HTML</p>
+
+  <div class="auto">🚗</div>
+
+  <div class="panel">
+
+    <!-- ===== BOTONES DE MOVIMIENTO ===== -->
+    <h2>Movimiento</h2>
+    <div class="pad">
+      <button class="adelante" onclick="mostrar('Avanzando ⬆️')">⬆️ Adelante</button>
+      <button class="izq"      onclick="mostrar('Doblando a la izquierda ⬅️')">⬅️ Izq.</button>
+      <button class="frenar"   onclick="mostrar('FRENANDO ⛔')">⛔ Frenar</button>
+      <button class="der"      onclick="mostrar('Doblando a la derecha ➡️')">➡️ Der.</button>
+      <button class="atras"    onclick="mostrar('Retrocediendo ⬇️')">⬇️ Atrás</button>
+    </div>
+
+    <!-- ===== ELECCIÓN DE MOTOR ===== -->
+    <h2>Motor</h2>
+    <div class="motores">
+      <button onclick="mostrar('Motor eléctrico encendido 🔋')">🔋 Eléctrico</button>
+      <button onclick="mostrar('Motor a combustión encendido ⛽')">⛽ Combustión</button>
+    </div>
+
+    <!-- ===== PANTALLA DE ESTADO ===== -->
+    <div class="estado" id="estado">Esperando una orden… 🟢</div>
+  </div>
+
+  <footer>
+    Clase 1 · GEOTECH · Hecho con HTML ❤️<br>
+    Los botones todavía no mueven el auto real — eso viene en las próximas clases.
+  </footer>
+
+  <!--
+    Este mini-script es solo para que, al apretar un botón,
+    la pantallita muestre un mensaje. Es un ADELANTO de JavaScript:
+    no hace falta entenderlo hoy, lo vamos a ver bien más adelante.
+  -->
+  <script>
+    function mostrar(mensaje){
+      document.getElementById('estado').innerHTML = '<b>' + mensaje + '</b>';
+    }
+  </script>
+</body>
+</html>

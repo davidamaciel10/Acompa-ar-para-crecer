@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GEOTECH · Clase de HTML (45 min)</title>
+  <meta name="description" content="Clase introductoria de HTML para GEOTECH: primer paso hacia la página que va a controlar el auto.">
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#0e1424;
+      --bg2:#151d33;
+      --panel:#1b2540;
+      --line:#2b3a63;
+      --txt:#e8edf9;
+      --muted:#9fb0d4;
+      --accent:#37e0c8;   /* verde-agua tech */
+      --accent2:#ffcf4d;  /* amarillo */
+      --accent3:#ff6b9d;  /* rosa */
+      --blue:#5aa9ff;
+      --code-key:#ff6b9d;
+      --code-tag:#5aa9ff;
+      --code-str:#ffcf4d;
+      --code-com:#7f8fb8;
+    }
+    *{margin:0;padding:0;box-sizing:border-box;}
+    html,body{height:100%;}
+    body{
+      font-family:'Fredoka',sans-serif;
+      background:radial-gradient(1200px 700px at 70% -10%, #1a2b52, transparent),
+                 radial-gradient(900px 600px at 10% 110%, #17243f, transparent),
+                 var(--bg);
+      color:var(--txt);
+      overflow:hidden;
+    }
+
+    /* ===== estructura de slides ===== */
+    .deck{position:fixed;inset:0;}
+    .slide{
+      position:absolute;inset:0;
+      display:none;
+      flex-direction:column;
+      justify-content:center;
+      padding:min(6vh,60px) min(8vw,90px);
+      animation:fade .35s ease;
+    }
+    .slide.active{display:flex;}
+    @keyframes fade{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:none;}}
+
+    /* ===== badges de tiempo / bloque ===== */
+    .tag{
+      display:inline-flex;align-items:center;gap:8px;
+      font-size:.85rem;font-weight:600;letter-spacing:.5px;
+      background:var(--panel);border:1px solid var(--line);
+      color:var(--muted);padding:6px 14px;border-radius:999px;
+      width:max-content;margin-bottom:22px;
+    }
+    .tag .dot{width:9px;height:9px;border-radius:50%;background:var(--accent);}
+    .tag.b2 .dot{background:var(--accent2);}
+    .tag.b3 .dot{background:var(--accent3);}
+    .tag.b4 .dot{background:var(--blue);}
+
+    h1{font-size:clamp(2rem,5.5vw,4rem);line-height:1.05;font-weight:700;}
+    h2{font-size:clamp(1.6rem,4vw,3rem);line-height:1.1;font-weight:700;margin-bottom:18px;}
+    h3{font-size:clamp(1.1rem,2.4vw,1.6rem);font-weight:600;margin-bottom:10px;}
+    p{font-size:clamp(1rem,2vw,1.4rem);color:var(--muted);line-height:1.5;max-width:60ch;}
+    .big{font-size:clamp(1.2rem,2.6vw,1.7rem);color:var(--txt);}
+    strong{color:var(--txt);font-weight:600;}
+    .hl{color:var(--accent);}
+    .hl2{color:var(--accent2);}
+    .hl3{color:var(--accent3);}
+
+    ul{list-style:none;margin-top:18px;display:grid;gap:14px;}
+    li{font-size:clamp(1rem,2.1vw,1.4rem);color:var(--muted);display:flex;gap:14px;align-items:flex-start;line-height:1.4;}
+    li::before{content:"▸";color:var(--accent);font-size:1.1em;line-height:1.3;}
+    li.b2::before{color:var(--accent2);}
+    li.b3::before{color:var(--accent3);}
+
+    .lead{margin-bottom:10px;}
+    .cols{display:grid;grid-template-columns:1fr 1fr;gap:34px;align-items:center;}
+    @media (max-width:820px){.cols{grid-template-columns:1fr;gap:20px;}}
+
+    /* ===== bloques de código ===== */
+    pre{
+      background:#0b1120;border:1px solid var(--line);border-radius:16px;
+      padding:22px 24px;overflow:auto;margin-top:8px;
+      font-family:'JetBrains Mono',monospace;font-size:clamp(.8rem,1.5vw,1.05rem);
+      line-height:1.6;box-shadow:0 20px 50px rgba(0,0,0,.35);
+    }
+    code{font-family:'JetBrains Mono',monospace;}
+    .c-tag{color:var(--code-tag);}
+    .c-str{color:var(--code-str);}
+    .c-com{color:var(--code-com);}
+    .c-txt{color:#cbd6f2;}
+    kbd{
+      font-family:'JetBrains Mono',monospace;font-size:.9em;
+      background:var(--panel);border:1px solid var(--line);border-bottom-width:3px;
+      border-radius:7px;padding:2px 9px;color:var(--txt);
+    }
+
+    /* ===== tarjetas ===== */
+    .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:18px;margin-top:26px;}
+    .card{
+      background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:22px;
+    }
+    .card .ico{font-size:2rem;margin-bottom:10px;}
+    .card h3{color:var(--txt);}
+    .card p{font-size:1rem;}
+    .card.a{border-color:rgba(55,224,200,.5);}
+    .card.b{border-color:rgba(255,207,77,.5);}
+    .card.c{border-color:rgba(255,107,157,.5);}
+
+    .emoji{font-size:clamp(3rem,9vw,7rem);line-height:1;margin-bottom:18px;}
+    .note{
+      margin-top:26px;background:rgba(90,169,255,.08);border-left:4px solid var(--blue);
+      border-radius:0 12px 12px 0;padding:14px 20px;font-size:1.05rem;color:var(--txt);max-width:70ch;
+    }
+    .note b{color:var(--blue);}
+
+    /* mini panel demo */
+    .demo{
+      background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:24px;text-align:center;
+    }
+    .demo .screen{font-size:2.4rem;margin:6px 0 16px;}
+    .pad{display:grid;grid-template-columns:repeat(3,64px);grid-template-rows:repeat(3,64px);gap:10px;justify-content:center;}
+    .pad button{
+      font-family:'Fredoka',sans-serif;font-size:1.4rem;font-weight:600;border:none;border-radius:14px;
+      background:#26335a;color:var(--txt);cursor:pointer;transition:.15s;
+    }
+    .pad button:hover{background:var(--accent);color:#082b26;transform:translateY(-2px);}
+    .pad .up{grid-column:2;grid-row:1;}
+    .pad .left{grid-column:1;grid-row:2;}
+    .pad .stop{grid-column:2;grid-row:2;background:var(--accent3);color:#3b0d21;}
+    .pad .right{grid-column:3;grid-row:2;}
+    .pad .down{grid-column:2;grid-row:3;}
+
+    /* ===== barra inferior / navegación ===== */
+    .bar{
+      position:fixed;left:0;right:0;bottom:0;height:54px;
+      display:flex;align-items:center;justify-content:space-between;
+      padding:0 20px;background:rgba(11,17,32,.75);backdrop-filter:blur(8px);
+      border-top:1px solid var(--line);z-index:10;
+    }
+    .brand{display:flex;align-items:center;gap:10px;font-weight:600;color:var(--muted);font-size:.95rem;}
+    .brand b{color:var(--accent);}
+    .nav{display:flex;align-items:center;gap:10px;}
+    .nav button{
+      font-family:'Fredoka',sans-serif;background:var(--panel);color:var(--txt);border:1px solid var(--line);
+      width:40px;height:36px;border-radius:10px;cursor:pointer;font-size:1.1rem;transition:.15s;
+    }
+    .nav button:hover{background:var(--accent);color:#082b26;}
+    .counter{color:var(--muted);font-size:.9rem;min-width:52px;text-align:center;}
+    .progress{position:fixed;top:0;left:0;height:4px;background:var(--accent);z-index:11;transition:width .3s;}
+    .hint{position:fixed;bottom:64px;right:16px;color:var(--muted);font-size:.78rem;opacity:.7;z-index:10;}
+  </style>
+</head>
+<body>
+  <div class="progress" id="progress"></div>
+  <div class="deck" id="deck">
+
+    <!-- ===== 0 · PORTADA ===== -->
+    <section class="slide active">
+      <div class="emoji">🚗💻</div>
+      <div class="tag"><span class="dot"></span> GEOTECH · Clase 1 · 45 minutos</div>
+      <h1>HTML: los <span class="hl">planos</span> de la página<br>que va a manejar tu auto</h1>
+      <p style="margin-top:22px" class="big">Ya diseñaron el auto en 3D. Hoy empezamos a construir el <strong>tablero</strong> desde el que lo vamos a controlar. Y todo arranca con una palabra: <span class="hl2">HTML</span>.</p>
+      <p style="margin-top:26px;font-size:1rem">Usá <kbd>→</kbd> para avanzar y <kbd>←</kbd> para volver.</p>
+    </section>
+
+    <!-- ===== 1 · ¿DE QUÉ ESTÁN HECHAS LAS PÁGINAS? (enganche) ===== -->
+    <section class="slide">
+      <div class="tag"><span class="dot"></span> Bloque 1 · Enganche · 0–5 min</div>
+      <h2>Pará un segundo… ¿de qué está hecho YouTube?</h2>
+      <p class="lead">Abrís el celu, entrás a YouTube, Instagram, un juego online. Todo eso que ves —los botones, los textos, las imágenes— <strong>alguien lo tuvo que escribir</strong>.</p>
+      <ul>
+        <li>Ninguna página nace "mágicamente": está <strong>escrita con código</strong>.</li>
+        <li>El código que arma la <span class="hl">estructura</span> de casi TODAS las páginas se llama <strong class="hl2">HTML</strong>.</li>
+        <li>La página que va a controlar nuestro auto también va a ser… <strong>HTML</strong>. 🎯</li>
+      </ul>
+      <div class="note"><b>Dato:</b> en cualquier página podés apretar <kbd>F12</kbd> (o "Inspeccionar") y ver el HTML por debajo. Es como ver los planos de un edificio ya construido.</div>
+    </section>
+
+    <!-- ===== 2 · EL OBJETIVO REAL ===== -->
+    <section class="slide">
+      <div class="tag"><span class="dot"></span> Bloque 1 · A dónde vamos</div>
+      <h2>El plan grande del proyecto 🏁</h2>
+      <div class="cols">
+        <div>
+          <ul>
+            <li><strong>Paso 1 — HECHO ✅:</strong> diseñaron el auto en 3D (15×25 cm, 2 motores + rueda loca) en Tinkercad.</li>
+            <li class="b2"><strong>Paso 2 — HOY:</strong> aprender <span class="hl">HTML</span> y armar el <strong>tablero</strong> (botones de adelante, atrás, motores…).</li>
+            <li class="b3"><strong>Paso 3 — Después:</strong> hacer que esos botones <strong>hagan cosas</strong> (programación) y se conecten al auto real (hardware).</li>
+          </ul>
+        </div>
+        <div class="demo">
+          <div style="color:var(--muted);font-size:.9rem">Así se va a ver (más o menos)</div>
+          <div class="screen">🚗</div>
+          <div class="pad">
+            <button class="up">▲</button>
+            <button class="left">◀</button>
+            <button class="stop">■</button>
+            <button class="right">▶</button>
+            <button class="down">▼</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 3 · ¿QUÉ ES HTML? ===== -->
+    <section class="slide">
+      <div class="tag b2"><span class="dot"></span> Bloque 2 · ¿Qué es HTML? · 5–12 min</div>
+      <h2>HTML = el <span class="hl2">esqueleto</span> de la página</h2>
+      <p class="lead">Sus siglas son <strong>H</strong>yper<strong>T</strong>ext <strong>M</strong>arkup <strong>L</strong>anguage. Suena complicado, pero la idea es re simple:</p>
+      <div class="cards">
+        <div class="card a"><div class="ico">🧱</div><h3>Estructura</h3><p>HTML pone los "ladrillos": títulos, textos, botones, imágenes.</p></div>
+        <div class="card b"><div class="ico">🎨</div><h3>No es dibujar</h3><p>No decide colores lindos (eso es CSS). Solo dice QUÉ hay en la página.</p></div>
+        <div class="card c"><div class="ico">🧠</div><h3>No "piensa"</h3><p>No hace cálculos ni acciones (eso es JavaScript). Es el plano, no el motor.</p></div>
+      </div>
+      <div class="note"><b>Analogía GEOTECH:</b> el diseño 3D del auto es la estructura física. El <b>HTML es la estructura de la página</b>. Mismo rol, distinto mundo.</div>
+    </section>
+
+    <!-- ===== 4 · ETIQUETAS ===== -->
+    <section class="slide">
+      <div class="tag b2"><span class="dot"></span> Bloque 2 · La pieza clave</div>
+      <h2>Todo son <span class="hl2">etiquetas</span> (tags)</h2>
+      <p class="lead">Una etiqueta es una palabra entre <strong>&lt; &gt;</strong>. Casi siempre vienen de a dos: una que <strong>abre</strong> y una que <strong>cierra</strong> (con <code>/</code>).</p>
+      <pre><code><span class="c-tag">&lt;h1&gt;</span><span class="c-txt">Auto GEOTECH</span><span class="c-tag">&lt;/h1&gt;</span>     <span class="c-com">← título grande</span>
+<span class="c-tag">&lt;p&gt;</span><span class="c-txt">Este es el tablero de control.</span><span class="c-tag">&lt;/p&gt;</span>  <span class="c-com">← un párrafo de texto</span>
+<span class="c-tag">&lt;button&gt;</span><span class="c-txt">Adelante</span><span class="c-tag">&lt;/button&gt;</span> <span class="c-com">← un botón</span></code></pre>
+      <p style="margin-top:16px"><span class="hl2">▸ abre</span> <code>&lt;h1&gt;</code> … contenido … <span class="hl2">cierra</span> <code>&lt;/h1&gt;</code>. Lo de adentro es lo que se ve.</p>
+    </section>
+
+    <!-- ===== 5 · ETIQUETAS ÚTILES ===== -->
+    <section class="slide">
+      <div class="tag b2"><span class="dot"></span> Bloque 2 · Kit básico</div>
+      <h2>Con estas 5 ya armás una página</h2>
+      <ul class="b2">
+        <li class="b2"><code>&lt;h1&gt;</code> … <code>&lt;h6&gt;</code> → <strong>títulos</strong> (h1 el más grande).</li>
+        <li class="b2"><code>&lt;p&gt;</code> → <strong>párrafos</strong> de texto.</li>
+        <li class="b2"><code>&lt;button&gt;</code> → <strong>botones</strong> (nuestros favoritos para el auto 🚗).</li>
+        <li class="b2"><code>&lt;img&gt;</code> → <strong>imágenes</strong> (una foto del auto, por ejemplo).</li>
+        <li class="b2"><code>&lt;div&gt;</code> → una <strong>caja</strong> para agrupar cosas.</li>
+      </ul>
+      <div class="note"><b>Regla de oro:</b> lo que abrís, lo cerrás. <code>&lt;button&gt;</code> siempre lleva su <code>&lt;/button&gt;</code>.</div>
+    </section>
+
+    <!-- ===== 6 · ESTRUCTURA DE UN DOCUMENTO ===== -->
+    <section class="slide">
+      <div class="tag b2"><span class="dot"></span> Bloque 2 · El molde</div>
+      <h2>Toda página HTML arranca igual</h2>
+      <p class="lead">Es como el "molde" que copiás siempre. No hace falta memorizarlo, pero conviene reconocerlo:</p>
+      <pre><code><span class="c-tag">&lt;!DOCTYPE html&gt;</span>              <span class="c-com">← "esto es una página HTML"</span>
+<span class="c-tag">&lt;html&gt;</span>
+  <span class="c-tag">&lt;head&gt;</span>                    <span class="c-com">← info interna (título de la pestaña, etc.)</span>
+    <span class="c-tag">&lt;title&gt;</span><span class="c-txt">Auto GEOTECH</span><span class="c-tag">&lt;/title&gt;</span>
+  <span class="c-tag">&lt;/head&gt;</span>
+  <span class="c-tag">&lt;body&gt;</span>                    <span class="c-com">← ACÁ va todo lo que se VE</span>
+    <span class="c-tag">&lt;h1&gt;</span><span class="c-txt">Tablero</span><span class="c-tag">&lt;/h1&gt;</span>
+  <span class="c-tag">&lt;/body&gt;</span>
+<span class="c-tag">&lt;/html&gt;</span></code></pre>
+      <p style="margin-top:14px">Lo importante: <strong>todo lo que se ve va dentro de <span class="hl2">&lt;body&gt;</span></strong>.</p>
+    </section>
+
+    <!-- ===== 7 · TRANSICIÓN A LA PRÁCTICA ===== -->
+    <section class="slide">
+      <div class="emoji">🛠️</div>
+      <div class="tag b3"><span class="dot"></span> Bloque 3 · MANOS A LA OBRA · 20–40 min</div>
+      <h2>Ahora lo construimos <span class="hl3">juntos</span></h2>
+      <p class="big">Vamos a armar el <strong>Panel de Control del Auto GEOTECH</strong> de cero. Abran el editor y sigan cada paso conmigo. Al final: guardar, abrir en el navegador y ver el resultado. 💥</p>
+      <div class="note"><b>Objetivo del bloque:</b> que cada uno tenga su archivo <code>panel-control.html</code> con título, imagen y los botones del auto.</div>
+    </section>
+
+    <!-- ===== 8 · PASO 1 ===== -->
+    <section class="slide">
+      <div class="tag b3"><span class="dot"></span> Paso 1 · El molde</div>
+      <h2>Paso 1 — Creamos el archivo</h2>
+      <ul class="b3">
+        <li class="b3">Nuevo archivo → lo llamamos <code>panel-control.html</code>.</li>
+        <li class="b3">Pegamos el molde y le ponemos un título dentro de <code>&lt;body&gt;</code>.</li>
+      </ul>
+      <pre><code><span class="c-tag">&lt;!DOCTYPE html&gt;</span>
+<span class="c-tag">&lt;html&gt;</span>
+  <span class="c-tag">&lt;head&gt;</span>
+    <span class="c-tag">&lt;title&gt;</span><span class="c-txt">Panel Auto GEOTECH</span><span class="c-tag">&lt;/title&gt;</span>
+  <span class="c-tag">&lt;/head&gt;</span>
+  <span class="c-tag">&lt;body&gt;</span>
+    <span class="c-tag">&lt;h1&gt;</span><span class="c-txt">🚗 Panel de Control</span><span class="c-tag">&lt;/h1&gt;</span>
+  <span class="c-tag">&lt;/body&gt;</span>
+<span class="c-tag">&lt;/html&gt;</span></code></pre>
+      <p style="margin-top:12px">Guardamos y lo abrimos en el navegador (doble clic). <strong>¡Ya tenemos una página!</strong> 🎉</p>
+    </section>
+
+    <!-- ===== 9 · PASO 2 ===== -->
+    <section class="slide">
+      <div class="tag b3"><span class="dot"></span> Paso 2 · Los botones del auto</div>
+      <h2>Paso 2 — Agregamos los controles</h2>
+      <p class="lead">Dentro del <code>&lt;body&gt;</code>, debajo del título, sumamos los botones de movimiento:</p>
+      <pre><code><span class="c-tag">&lt;p&gt;</span><span class="c-txt">Elegí hacia dónde va el auto:</span><span class="c-tag">&lt;/p&gt;</span>
+
+<span class="c-tag">&lt;button&gt;</span><span class="c-txt">⬆️ Adelante</span><span class="c-tag">&lt;/button&gt;</span>
+<span class="c-tag">&lt;button&gt;</span><span class="c-txt">⬇️ Atrás</span><span class="c-tag">&lt;/button&gt;</span>
+<span class="c-tag">&lt;button&gt;</span><span class="c-txt">⬅️ Izquierda</span><span class="c-tag">&lt;/button&gt;</span>
+<span class="c-tag">&lt;button&gt;</span><span class="c-txt">➡️ Derecha</span><span class="c-tag">&lt;/button&gt;</span>
+<span class="c-tag">&lt;button&gt;</span><span class="c-txt">⛔ FRENAR</span><span class="c-tag">&lt;/button&gt;</span></code></pre>
+      <p style="margin-top:12px">Guardamos, refrescamos el navegador (<kbd>F5</kbd>)… <strong>¡aparecieron los botones!</strong></p>
+    </section>
+
+    <!-- ===== 10 · PASO 3 ===== -->
+    <section class="slide">
+      <div class="tag b3"><span class="dot"></span> Paso 3 · Los dos motores</div>
+      <h2>Paso 3 — Elegir el motor</h2>
+      <p class="lead">Nuestro auto tiene <strong>dos motores</strong>: uno a combustión y uno eléctrico. Le sumamos botones para elegir:</p>
+      <pre><code><span class="c-tag">&lt;h2&gt;</span><span class="c-txt">Motor</span><span class="c-tag">&lt;/h2&gt;</span>
+<span class="c-tag">&lt;button&gt;</span><span class="c-txt">🔋 Motor eléctrico</span><span class="c-tag">&lt;/button&gt;</span>
+<span class="c-tag">&lt;button&gt;</span><span class="c-txt">⛽ Motor a combustión</span><span class="c-tag">&lt;/button&gt;</span></code></pre>
+      <div class="note"><b>Ojo:</b> por ahora los botones <b>no hacen nada</b> al apretarlos, y está perfecto. Hoy armamos el <b>tablero</b>. Que se muevan de verdad es el próximo paso (programación + hardware).</div>
+    </section>
+
+    <!-- ===== 11 · CIERRE DE LA PRÁCTICA ===== -->
+    <section class="slide">
+      <div class="tag b3"><span class="dot"></span> Paso 4 · Lo que ya tienen</div>
+      <h2>¡Lo lograron! 🙌</h2>
+      <div class="cols">
+        <div>
+          <p class="lead">Con puro HTML ya armaron un tablero con:</p>
+          <ul class="b3">
+            <li class="b3">Un <strong>título</strong> (<code>h1</code>).</li>
+            <li class="b3">Textos que explican (<code>p</code>).</li>
+            <li class="b3"><strong>7 botones</strong> reales (<code>button</code>): movimiento + motores.</li>
+          </ul>
+          <p style="margin-top:16px;font-size:1rem">💡 En el repo dejamos <code>panel-control.html</code> ya armado y con onda, por si quieren compararlo con el suyo.</p>
+        </div>
+        <div class="demo">
+          <div style="color:var(--muted);font-size:.9rem">Tu tablero, versión final de hoy</div>
+          <div class="screen">🚗</div>
+          <div class="pad">
+            <button class="up">▲</button>
+            <button class="left">◀</button>
+            <button class="stop">■</button>
+            <button class="right">▶</button>
+            <button class="down">▼</button>
+          </div>
+          <div style="margin-top:14px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
+            <button style="font-family:inherit;border:none;border-radius:10px;padding:8px 12px;background:#26335a;color:var(--txt);cursor:pointer">🔋 Eléctrico</button>
+            <button style="font-family:inherit;border:none;border-radius:10px;padding:8px 12px;background:#26335a;color:var(--txt);cursor:pointer">⛽ Combustión</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 12 · CIERRE / QUÉ SIGUE ===== -->
+    <section class="slide">
+      <div class="tag b4"><span class="dot"></span> Bloque 4 · Cierre · 40–45 min</div>
+      <h2>¿Qué aprendimos y qué sigue?</h2>
+      <div class="cards">
+        <div class="card a"><div class="ico">✅</div><h3>Hoy</h3><p>HTML = estructura. Etiquetas que abren y cierran. Armamos el tablero.</p></div>
+        <div class="card b"><div class="ico">🎨</div><h3>Próxima</h3><p><strong>CSS</strong>: darle color, forma y que quede espectacular.</p></div>
+        <div class="card c"><div class="ico">⚙️</div><h3>Después</h3><p><strong>JavaScript</strong>: que los botones hagan cosas y hablen con el auto.</p></div>
+      </div>
+      <p style="margin-top:26px" class="big">El tablero que hicieron hoy es la <strong>base real</strong> de la página que va a manejar el auto. No era un ejercicio de práctica… <span class="hl3">era el proyecto de verdad.</span> 🚗💨</p>
+    </section>
+
+    <!-- ===== 13 · FIN ===== -->
+    <section class="slide">
+      <div class="emoji">🏁</div>
+      <h1>¡Buen trabajo, <span class="hl">GEOTECH</span>!</h1>
+      <p style="margin-top:20px" class="big">Guarden su <code>panel-control.html</code>. La próxima lo hacemos volar con CSS.</p>
+      <p style="margin-top:24px;font-size:1rem">¿Preguntas? Este es el momento. 🙋</p>
+    </section>
+
+  </div>
+
+  <div class="hint">← → para navegar · F para pantalla completa</div>
+  <div class="bar">
+    <div class="brand">🚗 <b>GEOTECH</b> · Clase de HTML</div>
+    <div class="nav">
+      <button id="prev" aria-label="Anterior">‹</button>
+      <span class="counter" id="counter">1 / 14</span>
+      <button id="next" aria-label="Siguiente">›</button>
+    </div>
+  </div>
+
+  <script>
+    const slides = Array.from(document.querySelectorAll('.slide'));
+    let i = 0;
+    const counter = document.getElementById('counter');
+    const progress = document.getElementById('progress');
+
+    function show(n){
+      i = Math.max(0, Math.min(slides.length - 1, n));
+      slides.forEach((s, idx) => s.classList.toggle('active', idx === i));
+      counter.textContent = (i + 1) + ' / ' + slides.length;
+      progress.style.width = ((i + 1) / slides.length * 100) + '%';
+    }
+    function next(){ show(i + 1); }
+    function prev(){ show(i - 1); }
+
+    document.getElementById('next').onclick = next;
+    document.getElementById('prev').onclick = prev;
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') { next(); e.preventDefault(); }
+      else if (e.key === 'ArrowLeft' || e.key === 'PageUp') { prev(); }
+      else if (e.key === 'Home') { show(0); }
+      else if (e.key === 'End') { show(slides.length - 1); }
+      else if (e.key.toLowerCase() === 'f') {
+        if (!document.fullscreenElement) document.documentElement.requestFullscreen?.();
+        else document.exitFullscreen?.();
+      }
+    });
+
+    // gestos táctiles simples (por si se proyecta desde tablet)
+    let x0 = null;
+    document.addEventListener('touchstart', e => x0 = e.touches[0].clientX, {passive:true});
+    document.addEventListener('touchend', e => {
+      if (x0 === null) return;
+      const dx = e.changedTouches[0].clientX - x0;
+      if (Math.abs(dx) > 50) (dx < 0 ? next : prev)();
+      x0 = null;
+    }, {passive:true});
+
+    show(0);
+  </script>
+</body>
+</html>
